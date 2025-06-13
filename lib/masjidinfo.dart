@@ -24,7 +24,7 @@ Future<MasjidInfo> loadMasjidInfoFromAsset() async {
 }
 
 class DisplayInfoMasjid extends StatelessWidget {
-  const DisplayInfoMasjid({Key? key}) : super(key: key);
+  const DisplayInfoMasjid({super.key});
 
   @override
   Widget build(BuildContext context) {

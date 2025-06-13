@@ -70,9 +70,9 @@ class WaktuSaatIni {
 }
 
 class DisplayWaktuSaatini extends StatelessWidget {
-  final WaktuSaatIni waktuSaatIni = WaktuSaatIni();
+  DisplayWaktuSaatini({super.key});
 
-  DisplayWaktuSaatini({Key? key}) : super(key: key);
+  final WaktuSaatIni waktuSaatIni = WaktuSaatIni();
 
   @override
   Widget build(BuildContext context) {

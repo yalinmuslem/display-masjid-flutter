@@ -69,7 +69,7 @@ class _WidgetWaktuSholat extends StatelessWidget {
 }
 
 class DisplayWaktuSholat extends StatelessWidget {
-  DisplayWaktuSholat({Key? key}) : super(key: key);
+  DisplayWaktuSholat({super.key});
   // example data for WaktuSholatList
   final WaktuSholatList waktuSholatList = WaktuSholatList.fromJson([
     {'waktu': '05:00', 'waktu_sholat': 'Subuh', 'color': Colors.purple[100]},
