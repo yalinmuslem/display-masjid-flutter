@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hijri/hijri_calendar.dart';
 
 class WaktuSaatIni {
   // tanggal hari ini
@@ -69,10 +70,24 @@ class WaktuSaatIni {
   }
 }
 
+class HijriahDate {
+  late final int day;
+  late final String monthName;
+  late final int year;
+
+  HijriahDate() {
+    final hijriDate = HijriCalendar.now();
+    day = hijriDate.hDay;
+    monthName = hijriDate.longMonthName; // Replace with actual month name logic
+    year = hijriDate.hYear;
+  }
+}
+
 class DisplayWaktuSaatini extends StatelessWidget {
   DisplayWaktuSaatini({super.key});
 
   final WaktuSaatIni waktuSaatIni = WaktuSaatIni();
+  final HijriahDate hijriahDate = HijriahDate();
 
   @override
   Widget build(BuildContext context) {
@@ -81,24 +96,62 @@ class DisplayWaktuSaatini extends StatelessWidget {
         border: Border.all(color: Colors.black), // Add border
       ),
       height: 150,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            waktuSaatIni.hariIni,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10), // Add space between texts
-          Text(
-            '${waktuSaatIni.tanggalHariIni.day} ${waktuSaatIni.bulanIni} ${waktuSaatIni.tanggalHariIni.year}',
-            style: TextStyle(fontSize: 18),
-          ),
-          const SizedBox(height: 10), // Add space between texts
-          Text(
-            '${waktuSaatIni.jamHariIni.hour}:${waktuSaatIni.jamHariIni.minute}',
-            style: TextStyle(fontSize: 18),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 10.0,
+        ), // Add padding left and right
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Card(
+              color: Colors.green,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: SizedBox(
+                  width: double.infinity, // Set width to match the screen width
+                  child: Text(
+                    waktuSaatIni.hariIni,
+                    textAlign: TextAlign.center, // Center the text
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  flex: 5,
+                  child: Text(
+                    '${waktuSaatIni.tanggalHariIni.day} ${waktuSaatIni.bulanIni}\n${waktuSaatIni.tanggalHariIni.year}',
+                    textAlign: TextAlign.left, // Align text to the left
+                    style: TextStyle(fontSize: 15),
+                  ),
+                ),
+                Expanded(
+                  flex: 5,
+                  child: Text(
+                    '${hijriahDate.day} ${hijriahDate.monthName} ${hijriahDate.year} H',
+                    textAlign: TextAlign.right, // Align text to the right
+                    style: TextStyle(fontSize: 15),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10), // Add space between texts
+            Text(
+              '${waktuSaatIni.jamHariIni.hour}:${waktuSaatIni.jamHariIni.minute}',
+              style: TextStyle(fontSize: 18),
+            ),
+          ],
+        ),
       ),
     );
   }

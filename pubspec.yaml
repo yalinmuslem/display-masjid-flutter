@@ -7,6 +7,7 @@ environment:
   sdk: ^3.8.1
 
 dependencies:
+  hijri: ^3.0.0
   flutter:
     sdk: flutter
 
