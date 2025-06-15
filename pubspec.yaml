@@ -8,6 +8,9 @@ environment:
 
 dependencies:
   hijri: ^3.0.0
+  google_fonts: ^2.1.0
+  quran: ^1.2.3
+  just_audio: ^0.9.33
   flutter:
     sdk: flutter
 
@@ -21,3 +24,5 @@ flutter:
   assets:
     - assets/masjid_config.json
     - assets/logo_masjid.png
+    - assets/quran_images/
+    - assets/quran_audio/

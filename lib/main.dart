@@ -1,6 +1,4 @@
-import 'package:display_masjid/logomasjid.dart';
-import 'package:display_masjid/masjidinfo.dart';
-import 'package:display_masjid/waktusaatini.dart';
+import 'package:display_masjid/body/body.dart';
 import 'package:display_masjid/waktusholat.dart';
 import 'package:flutter/material.dart';
 
@@ -42,13 +40,7 @@ class _DisplayWaktuSholat extends StatelessWidget {
       children: [
         Expanded(
           flex: 8, // 70% of the screen
-          child: Row(
-            children: [
-              Expanded(flex: 1, child: DisplayLogoMasjid()),
-              Expanded(flex: 7, child: DisplayInfoMasjid()),
-              Expanded(flex: 2, child: DisplayWaktuSaatini()),
-            ],
-          ),
+          child: DisplayBody(),
         ),
         Expanded(
           flex: 2, // 30% of the screen
