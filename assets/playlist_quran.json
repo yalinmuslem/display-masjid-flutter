@@ -1,0 +1,22 @@
+{
+    "Jumat": [
+        {
+            "nomor_surat": 1,
+            "nama": "Quran Surah Al-Fatihah"           
+        },
+        {
+            "nomor_surat": 2,
+            "nama": "Quran Surah Al-Baqarah"           
+        }        
+    ],
+    "Selasa": [
+        {
+            "nomor_surat": 3,
+            "nama": "Quran Surah Al-Imran"           
+        },
+        {
+            "nomor_surat": 4,
+            "nama": "Quran Surah An-Nisa"           
+        }
+    ]
+}

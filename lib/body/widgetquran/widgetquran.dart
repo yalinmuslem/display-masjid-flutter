@@ -13,17 +13,84 @@ class DisplayWidgetQuran extends StatefulWidget {
   State<DisplayWidgetQuran> createState() => _DisplayWidgetQuranState();
 }
 
-class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
-  final AudioPlayer player = AudioPlayer();
+Future<List> getQuranPlaylist() async {
+  try {
+    final jsonString = await rootBundle.loadString(
+      'assets/playlist_quran.json',
+    );
+    final Map<String, dynamic> data = json.decode(jsonString);
 
-  final int surahNumber = 1;
+    // Ambil hari ini (misal Senin)
+    final now = DateTime.now();
+    final namaHari = _namaHari(now.weekday); // "Senin", "Selasa", dst
+
+    if (data.containsKey(namaHari)) {
+      final List<dynamic> daftarSurah = data[namaHari];
+
+      print(daftarSurah);
+
+      return daftarSurah; // Mengembalikan daftar surah
+    } else {
+      print('Tidak ada playlist untuk hari $namaHari.');
+    }
+  } catch (e) {
+    print('Terjadi kesalahan saat membaca file: $e');
+  }
+  return []; // Return an empty list if no playlist is found or an error occurs
+}
+
+String _namaHari(int weekday) {
+  const hari = {
+    1: 'Senin',
+    2: 'Selasa',
+    3: 'Rabu',
+    4: 'Kamis',
+    5: 'Jumat',
+    6: 'Sabtu',
+    7: 'Minggu',
+  };
+  return hari[weekday]!;
+}
+
+class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
+  final randomVerse = quran.RandomVerse();
+  final hariIni = DateTime.now().weekday;
+  final AudioPlayer player = AudioPlayer();
+  List<dynamic> quranPlaylist = [];
+  Map<String, dynamic>? surahHariIni;
+
+  int surahNumber = 1;
   int ayatNumber = 1;
   late int jumlahAyat;
 
   @override
   void initState() {
     super.initState();
-    jumlahAyat = quran.getVerseCount(surahNumber);
+
+    // Mendapatkan playlist Quran
+    getQuranPlaylist().then((playlist) {
+      setState(() {
+        quranPlaylist = playlist;
+        if (quranPlaylist.isNotEmpty) {
+          // Ambil surah pertama dari playlist
+          surahHariIni = quranPlaylist[0];
+          surahNumber = surahHariIni!['nomor_surat'];
+          ayatNumber = 1; // Mulai dari ayat pertama
+          jumlahAyat = quran.getVerseCount(surahNumber);
+
+          print(
+            '📖 Playlist Quran hari ini: ${surahHariIni!['nama']} jumlah ayat: ${jumlahAyat}',
+          );
+        } else {
+          // random surah jika tidak ada playlist untuk hari ini
+          jumlahAyat = quran.getVerseCount(randomVerse.surahNumber);
+          surahNumber = randomVerse.surahNumber;
+          ayatNumber = 1; // Mulai dari ayat pertama
+          debugPrint('Tidak ada playlist Quran untuk hari ini.');
+        }
+      });
+    });
+
     // _playAudio();
 
     player.playerStateStream.listen((state) {
@@ -40,6 +107,11 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
           // Jika sudah mencapai akhir surah, reset ke ayat pertama
           setState(() {
             ayatNumber = 1;
+            surahNumber++;
+            if (surahNumber > quranPlaylist.length) {
+              surahNumber =
+                  1; // Reset ke surah pertama jika sudah melewati jumlah surah
+            }
           });
           _playAudio();
         }
@@ -51,7 +123,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
     final audioPath =
         'quran_audio/$surahNumber/${surahNumber.toString().padLeft(3, '0')}${ayatNumber.toString().padLeft(3, '0')}.mp3';
     try {
-      // print('Memutar audio: $audioPath');
+      print('Memutar audio: $audioPath');
       await player.setAsset(audioPath);
       await player.play();
     } catch (e) {
@@ -134,14 +206,20 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Text(
-                      quran.getVerse(surahNumber, ayatNumber),
-                      style: GoogleFonts.getFont(
-                        'Amiri Quran',
-                        fontSize: 35,
-                        fontWeight: FontWeight.bold,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 35.0),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(minHeight: 150),
+                        child: Text(
+                          quran.getVerse(surahNumber, ayatNumber),
+                          style: GoogleFonts.getFont(
+                            'Amiri Quran',
+                            fontSize: 35,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                      textAlign: TextAlign.center,
                     ),
                     // Image.asset(
                     //   _getImageAssetPath(surahNumber, ayatNumber),
@@ -149,24 +227,27 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
                     //   width: double.infinity,
                     //   errorBuilder: (context, error, stackTrace) =>
                     //       const Text('Gambar tidak ditemukan!!'),
-                    // ),
+                    // ),),
                     const SizedBox(height: 12),
-                    FutureBuilder<String>(
-                      future: _getTerjemahan(surahNumber, ayatNumber),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const CircularProgressIndicator();
-                        } else if (snapshot.hasError) {
-                          return const Text('Terjemahan tidak tersedia');
-                        } else {
-                          return Text(
-                            snapshot.data ?? 'Terjemahan tidak ditemukan',
-                            style: const TextStyle(fontSize: 24),
-                            textAlign: TextAlign.center,
-                          );
-                        }
-                      },
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 35.0),
+                      child: FutureBuilder<String>(
+                        future: _getTerjemahan(surahNumber, ayatNumber),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          } else if (snapshot.hasError) {
+                            return const Text('Terjemahan tidak tersedia');
+                          } else {
+                            return Text(
+                              snapshot.data ?? 'Terjemahan tidak ditemukan',
+                              style: const TextStyle(fontSize: 24),
+                              textAlign: TextAlign.center,
+                            );
+                          }
+                        },
+                      ),
                     ),
                     ElevatedButton(
                       onPressed: () {
