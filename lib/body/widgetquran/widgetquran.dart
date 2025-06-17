@@ -6,13 +6,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:quran/quran.dart' as quran;
 
-class DisplayWidgetQuran extends StatefulWidget {
-  const DisplayWidgetQuran({super.key});
-
-  @override
-  State<DisplayWidgetQuran> createState() => _DisplayWidgetQuranState();
-}
-
 Future<List> getQuranPlaylist() async {
   try {
     final jsonString = await rootBundle.loadString(
@@ -52,12 +45,52 @@ String _namaHari(int weekday) {
   return hari[weekday]!;
 }
 
+// list mosque_images from folder assets/mosque_images dynamically
+Future<List<String>> getMosqueImages() async {
+  final imageFolder = 'mosque_images';
+  final images = <String>[];
+
+  for (int i = 1; i <= 10; i++) {
+    // if file exists in assets/mosque_images/mosque_i.jpg
+    try {
+      final imagePath = '$imageFolder/images-$i.jpg';
+      // Check if the file exists in the assets
+      rootBundle
+          .load(imagePath)
+          .then((_) {
+            images.add(imagePath);
+          })
+          .catchError((error) {
+            // If the file does not exist, we can ignore it
+            // print('File tidak ditemukan: $imagePath');
+          });
+    } catch (e) {
+      // print('Error loading image: $e');
+    }
+  }
+
+  // if no images found, return a default image
+  if (images.isEmpty) {
+    images.add('mosque_images/default.jpg'); // Add a default image
+  }
+
+  return images;
+}
+
+class DisplayWidgetQuran extends StatefulWidget {
+  const DisplayWidgetQuran({super.key});
+
+  @override
+  State<DisplayWidgetQuran> createState() => _DisplayWidgetQuranState();
+}
+
 class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
   final randomVerse = quran.RandomVerse();
   final hariIni = DateTime.now().weekday;
   final AudioPlayer player = AudioPlayer();
   List<dynamic> quranPlaylist = [];
   Map<String, dynamic>? surahHariIni;
+  List<String> mosqueImages = [];
 
   int surahNumber = 1;
   int ayatNumber = 1;
@@ -89,6 +122,15 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
           debugPrint('Tidak ada playlist Quran untuk hari ini.');
         }
       });
+    });
+
+    // mendapatkan images dari folder assets/mosque_images
+    getMosqueImages().then((images) {
+      // Do something with the images if needed
+      setState(() {
+        mosqueImages = images;
+      });
+      print('Images loaded: ${images.length} ${mosqueImages.length}');
     });
 
     // _playAudio();
@@ -173,14 +215,43 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
     return Row(
       children: [
         Expanded(
-          flex: 2, // 30% of the screen
-          child: Container(),
-        ), // Placeholder for the left side
+          key: const Key('widget_mosque_image'),
+          flex: 3,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Container(
+              height: 450, // Set the height of the container
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(
+                    mosqueImages.isNotEmpty
+                        ? mosqueImages[0] // Display the first image
+                        : 'mosque_images/default.jpg', // Default image if none available
+                  ),
+                  fit: BoxFit.cover,
+                ),
+                border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 2,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
         Expanded(
-          flex: 8, // 70% of the screen
+          key: const Key('widget_quran_surah'),
+          flex: 7,
           child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Container(
+              height: 450,
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black),
                 borderRadius: BorderRadius.circular(10),
