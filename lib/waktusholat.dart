@@ -1,5 +1,6 @@
 // class list waktu sholat hari ini
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class WaktuSholatList {
   final List<WaktuSholat> waktuSholats;
@@ -38,7 +39,6 @@ class _WidgetWaktuSholat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Card(
-        color: waktuSholat.color, // Use the color if provided
         margin: const EdgeInsets.all(4.0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -48,7 +48,27 @@ class _WidgetWaktuSholat extends StatelessWidget {
             bottomLeft: Radius.circular(0), // lancip
           ),
         ),
+        elevation: 4.0, // Add shadow elevation
+        shadowColor: Colors.black.withOpacity(0.5), // Set shadow color
         child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                (waktuSholat.color ?? Colors.white).withOpacity(
+                  0.8,
+                ), // Start color with alpha
+                Colors.white.withOpacity(0.9), // End color with alpha
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: const BorderRadius.only(
+              topRight: Radius.circular(0),
+              topLeft: Radius.circular(16),
+              bottomRight: Radius.circular(16),
+              bottomLeft: Radius.circular(0),
+            ),
+          ),
           padding: const EdgeInsets.all(8.0),
           width: double.infinity, // Set width to fill the screen
           child: Column(
@@ -56,10 +76,33 @@ class _WidgetWaktuSholat extends StatelessWidget {
             children: [
               Text(
                 waktuSholat.waktu,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: GoogleFonts.bebasNeue(
+                  fontSize: 40,
+                  color: Colors.white,
+                  shadows: [
+                    Shadow(
+                      offset: Offset(2.0, 2.0),
+                      blurRadius: 4.0,
+                      color: Colors.black.withOpacity(0.5),
+                    ),
+                  ],
+                ),
+                textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 20), // Add space between texts
-              Text(waktuSholat.waktuSholat, style: TextStyle(fontSize: 14)),
+              Text(
+                waktuSholat.waktuSholat,
+                style: GoogleFonts.protestStrike(
+                  fontSize: 50,
+                  color: Colors.yellow,
+                  shadows: [
+                    Shadow(
+                      offset: Offset(2.0, 2.0),
+                      blurRadius: 4.0,
+                      color: Colors.black.withOpacity(0.5),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -88,7 +131,9 @@ class DisplayWaktuSholat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.black), // Add border
+        border: Border.all(
+          color: const Color.fromARGB(0, 0, 0, 0),
+        ), // Add border
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

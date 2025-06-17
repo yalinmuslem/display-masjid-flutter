@@ -12,9 +12,17 @@ class DisplayHeader extends StatelessWidget {
       padding: const EdgeInsets.all(10.0),
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.black), // Add border
-          borderRadius: BorderRadius.circular(10), // Rounded corners
-          color:Colors.white, // Background color
+          gradient: LinearGradient(
+            colors: [
+              const Color.fromARGB(70, 187, 222, 251),
+              const Color.fromARGB(70, 100, 180, 246),
+            ],
+          ),
+          border: Border.all(
+            color: const Color.fromARGB(0, 0, 0, 0),
+          ), // Add border
+          borderRadius: BorderRadius.circular(2), // Rounded corners
+          color: Colors.white, // Background color
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.5), // Shadow color

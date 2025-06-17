@@ -29,6 +29,7 @@ flutter:
     - assets/masjid_config.json
     - assets/logo_masjid.png
     - assets/background/thomas-vimare-IZ01rjX0XQA-unsplash.jpg
+    - assets/background/guillaume-galtier-3YrppYQPoCI-unsplash.jpg
     - assets/quran_images/
     - assets/quran_audio/
     - assets/surah/

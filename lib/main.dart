@@ -43,17 +43,27 @@ class _DisplayWaktuSholat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          flex: 8, // 70% of the screen
-          child: DisplayBody(),
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(
+            'assets/background/guillaume-galtier-3YrppYQPoCI-unsplash.jpg',
+          ),
+          fit: BoxFit.cover,
         ),
-        Expanded(
-          flex: 2, // 30% of the screen
-          child: DisplayWaktuSholat(),
-        ),
-      ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 8, // 70% of the screen
+            child: DisplayBody(),
+          ),
+          Expanded(
+            flex: 2, // 30% of the screen
+            child: DisplayWaktuSholat(),
+          ),
+        ],
+      ),
     );
   }
 }

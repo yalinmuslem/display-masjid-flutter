@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hijri/hijri_calendar.dart';
 
 class WaktuSaatIni {
@@ -92,69 +93,110 @@ class DisplayWaktuSaatini extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 10.0,
-        ), // Add padding left and right
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Card(
-              color: Colors.green,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10.0,
+      ), // Add padding left and right
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: Text(
+                  '${waktuSaatIni.tanggalHariIni.day}',
+                  textAlign: TextAlign.left, // Align text to the left
+                  style: GoogleFonts.bebasNeue(
+                    fontSize: 48,
+                    color: Colors.white,
+                  ),
+                ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: SizedBox(
-                  width: double.infinity, // Set width to match the screen width
-                  child: Text(
-                    waktuSaatIni.hariIni,
-                    textAlign: TextAlign.center, // Center the text
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+              Expanded(
+                flex: 4,
+                child: Card(
+                  color: Colors.green,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: SizedBox(
+                      width: double
+                          .infinity, // Set width to match the screen width
+                      child: Text(
+                        waktuSaatIni.hariIni,
+                        textAlign: TextAlign.center, // Center the text
+                        style: GoogleFonts.bebasNeue(
+                          fontSize: 17,
+                          color: Colors.white,
+                          shadows: [
+                            Shadow(
+                              offset: Offset(2.0, 2.0),
+                              blurRadius: 4.0,
+                              color: Colors.black.withOpacity(0.5),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  flex: 5,
-                  child: Text(
-                    '${waktuSaatIni.tanggalHariIni.day} ${waktuSaatIni.bulanIni}\n${waktuSaatIni.tanggalHariIni.year}',
-                    textAlign: TextAlign.left, // Align text to the left
-                    style: TextStyle(fontSize: 15),
+              Expanded(
+                flex: 3,
+                child: Text(
+                  '${hijriahDate.day}',
+                  textAlign: TextAlign.right, // Align text to the right
+                  style: GoogleFonts.bebasNeue(
+                    fontSize: 48,
+                    color: Colors.white,
                   ),
                 ),
-                Expanded(
-                  flex: 5,
-                  child: Text(
-                    '${hijriahDate.day} ${hijriahDate.monthName} ${hijriahDate.year} H',
-                    textAlign: TextAlign.right, // Align text to the right
-                    style: TextStyle(fontSize: 15),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10), // Add space between texts
-            StreamBuilder<DateTime>(
-              stream: Stream.periodic(
-                const Duration(seconds: 1),
-                (_) => DateTime.now(),
               ),
-              builder: (context, snapshot) {
-                final currentTime = snapshot.data ?? DateTime.now();
-                final formattedTime =
-                    '${currentTime.hour.toString().padLeft(2, '0')}:${currentTime.minute.toString().padLeft(2, '0')}:${currentTime.second.toString().padLeft(2, '0')}';
-                return Text(formattedTime, style: TextStyle(fontSize: 18));
-              },
+            ],
+          ),
+          Row(
+            children: [
+              Expanded(
+                flex: 5,
+                child: Text(
+                  '${waktuSaatIni.bulanIni}\n${waktuSaatIni.tanggalHariIni.year} M',
+                  textAlign: TextAlign.left, // Align text to the left
+                  style: GoogleFonts.bebasNeue(
+                    fontSize: 25,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 5,
+                child: Text(
+                  '${hijriahDate.monthName}\n${hijriahDate.year} H',
+                  textAlign: TextAlign.right, // Align text to the right
+                  style: GoogleFonts.bebasNeue(
+                    fontSize: 25,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10), // Add space between texts
+          StreamBuilder<DateTime>(
+            stream: Stream.periodic(
+              const Duration(seconds: 1),
+              (_) => DateTime.now(),
             ),
-          ],
-        ),
-      );
+            builder: (context, snapshot) {
+              final currentTime = snapshot.data ?? DateTime.now();
+              final formattedTime =
+                  '${currentTime.hour.toString().padLeft(2, '0')}:${currentTime.minute.toString().padLeft(2, '0')}:${currentTime.second.toString().padLeft(2, '0')}';
+              return Text(formattedTime, style: TextStyle(fontSize: 18));
+            },
+          ),
+        ],
+      ),
+    );
   }
 }
