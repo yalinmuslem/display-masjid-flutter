@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:quran/quran.dart' as quran;
+import 'package:carousel_slider_x/carousel_slider_x.dart';
 
 Future<List> getQuranPlaylist() async {
   try {
@@ -45,38 +46,6 @@ String _namaHari(int weekday) {
   return hari[weekday]!;
 }
 
-// list mosque_images from folder assets/mosque_images dynamically
-Future<List<String>> getMosqueImages() async {
-  final imageFolder = 'mosque_images';
-  final images = <String>[];
-
-  for (int i = 1; i <= 10; i++) {
-    // if file exists in assets/mosque_images/mosque_i.jpg
-    try {
-      final imagePath = '$imageFolder/images-$i.jpg';
-      // Check if the file exists in the assets
-      rootBundle
-          .load(imagePath)
-          .then((_) {
-            images.add(imagePath);
-          })
-          .catchError((error) {
-            // If the file does not exist, we can ignore it
-            // print('File tidak ditemukan: $imagePath');
-          });
-    } catch (e) {
-      // print('Error loading image: $e');
-    }
-  }
-
-  // if no images found, return a default image
-  if (images.isEmpty) {
-    images.add('mosque_images/default.jpg'); // Add a default image
-  }
-
-  return images;
-}
-
 class DisplayWidgetQuran extends StatefulWidget {
   const DisplayWidgetQuran({super.key});
 
@@ -112,7 +81,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
           jumlahAyat = quran.getVerseCount(surahNumber);
 
           print(
-            '📖 Playlist Quran hari ini: ${surahHariIni!['nama']} jumlah ayat: ${jumlahAyat}',
+            '📖 Playlist Quran hari ini: ${surahHariIni!['nama']} jumlah ayat: $jumlahAyat',
           );
         } else {
           // random surah jika tidak ada playlist untuk hari ini
@@ -122,15 +91,6 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
           debugPrint('Tidak ada playlist Quran untuk hari ini.');
         }
       });
-    });
-
-    // mendapatkan images dari folder assets/mosque_images
-    getMosqueImages().then((images) {
-      // Do something with the images if needed
-      setState(() {
-        mosqueImages = images;
-      });
-      print('Images loaded: ${images.length} ${mosqueImages.length}');
     });
 
     // _playAudio();
@@ -173,6 +133,32 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
     }
   }
 
+  // list mosque_images from folder assets/mosque_images dynamically
+  Future<List<String>> getMosqueImages() async {
+    final imageFolder = 'assets/mosque_images';
+    final images = <String>[];
+
+    for (int i = 1; i <= 10; i++) {
+      try {
+        final imagePath = '$imageFolder/images-$i.jpg';
+        // Check if the file exists in the assets
+        await rootBundle.load(imagePath);
+        images.add(imagePath);
+      } catch (e) {
+        // Log the error if the file does not exist
+        // print('Error loading image: $imagePath - $e');
+      }
+    }
+
+    if (images.isEmpty) {
+      // If no images found, add a default image
+      images.add('assets/mosque_images/default.jpg');
+    }
+
+    // print('Loaded mosque images: ${images.length}');
+
+    return images;
+  }
   // String _getImageAssetPath(int surah, int ayat) {
   //   print(
   //     'Memuat gambar untuk Surah $surah, Ayat $ayat: assets/quran_images/$surah/${surah}_$ayat.png',
@@ -212,49 +198,105 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
   Widget build(BuildContext context) {
     final surah = quran.getSurahName(surahNumber);
 
+    print('mosqueImages.length: ${mosqueImages.length}');
+
     return Row(
       children: [
         Expanded(
           key: const Key('widget_mosque_image'),
-          flex: 3,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Container(
-              height: 450, // Set the height of the container
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(
-                    mosqueImages.isNotEmpty
-                        ? mosqueImages[0] // Display the first image
-                        : 'mosque_images/default.jpg', // Default image if none available
+          flex: 2,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Container(
+                  height: 200,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color.fromARGB(0, 0, 0, 0)),
+                    borderRadius: BorderRadius.circular(2),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
-                  fit: BoxFit.cover,
+                  child: FutureBuilder<List<String>>(
+                    future: getMosqueImages(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return const Center(child: Text('Gagal memuat gambar'));
+                      } else {
+                        mosqueImages = snapshot.data ?? [];
+                        return CarouselSlider.builder(
+                          itemCount: mosqueImages.length,
+                          itemBuilder: (context, index, realIndex) {
+                            return Image.asset(
+                              mosqueImages[index],
+                              fit: BoxFit.fill,
+                            );
+                          },
+                          options: CarouselOptions(
+                            autoPlay: true,
+                            aspectRatio: 2.0,
+                            enlargeCenterPage: false,
+                          ),
+                        );
+                      }
+                    },
+                  ),
                 ),
-                border: Border.all(color: Colors.black),
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
               ),
-            ),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Container(
+                  height: 230,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color.fromARGB(0, 0, 0, 0)),
+                    borderRadius: BorderRadius.circular(2),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Surah Hari Ini:\n$surah',
+                      style: GoogleFonts.getFont(
+                        'Amiri Quran',
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         Expanded(
           key: const Key('widget_quran_surah'),
-          flex: 7,
+          flex: 8,
           child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Container(
               height: 450,
               decoration: BoxDecoration(
-                border: Border.all(color: Colors.black),
-                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color.fromARGB(0, 0, 0, 0)),
+                borderRadius: BorderRadius.circular(2),
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
@@ -264,6 +306,12 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
                     offset: const Offset(0, 3),
                   ),
                 ],
+                image: DecorationImage(
+                  image: AssetImage(
+                    'assets/background/thomas-vimare-IZ01rjX0XQA-unsplash.jpg',
+                  ),
+                  fit: BoxFit.cover,
+                ),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -313,7 +361,10 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
                           } else {
                             return Text(
                               snapshot.data ?? 'Terjemahan tidak ditemukan',
-                              style: const TextStyle(fontSize: 24),
+                              style: const TextStyle(
+                                fontSize: 24,
+                                color: Colors.white,
+                              ),
                               textAlign: TextAlign.center,
                             );
                           }
