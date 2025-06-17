@@ -215,19 +215,6 @@ class DisplayWaktuSaatini extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10), // Add space between texts
-          StreamBuilder<DateTime>(
-            stream: Stream.periodic(
-              const Duration(seconds: 1),
-              (_) => DateTime.now(),
-            ),
-            builder: (context, snapshot) {
-              final currentTime = snapshot.data ?? DateTime.now();
-              final formattedTime =
-                  '${currentTime.hour.toString().padLeft(2, '0')}:${currentTime.minute.toString().padLeft(2, '0')}:${currentTime.second.toString().padLeft(2, '0')}';
-              return Text(formattedTime, style: TextStyle(fontSize: 18));
-            },
-          ),
         ],
       ),
     );

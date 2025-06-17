@@ -289,105 +289,205 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
         Expanded(
           key: const Key('widget_quran_surah'),
           flex: 8,
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Container(
-              height: 550,
-              decoration: BoxDecoration(
-                border: Border.all(color: const Color.fromARGB(0, 0, 0, 0)),
-                borderRadius: BorderRadius.circular(2),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-                image: DecorationImage(
-                  image: AssetImage(
-                    'assets/background/thomas-vimare-IZ01rjX0XQA-unsplash.jpg',
-                  ),
-                  fit: BoxFit.cover,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 10.0,
+                  left: 10.0,
+                  top: 10.0,
                 ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Flex(
-                  direction: Axis.vertical,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Row(
                   children: [
+                    Expanded(flex: 6, child: Container()),
                     Expanded(
-                      flex: 1,
-                      child: Text(
-                        'QS. $surah : $ayatNumber',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Expanded(
-                      flex: 5,
-                      child: Center(
-                        child: Text(
-                          quran.getVerse(surahNumber, ayatNumber),
-                          style: GoogleFonts.getFont(
-                            'Amiri Quran',
-                            fontSize: 36,
+                      flex: 2,
+                      child: TabWidget(
+                        childContent: Text(
+                          'Surah: $surahNumber',
+                          style: GoogleFonts.bebasNeue(
+                            fontSize: 24,
                             color: Colors.black,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                       ),
                     ),
+                    const SizedBox(
+                      width: 10,
+                    ), // Add gap between Expanded widgets
                     Expanded(
-                      flex: 3,
-                      child: Center(
-                        child: FutureBuilder<String>(
-                          future: _getTerjemahan(surahNumber, ayatNumber),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const CircularProgressIndicator();
-                            } else if (snapshot.hasError) {
-                              return const Text('Gagal memuat terjemahan');
-                            } else {
-                              return Text(
-                                snapshot.data ?? 'Terjemahan tidak tersedia',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
-                                ),
-                                textAlign: TextAlign.center,
-                              );
-                            }
-                          },
+                      flex: 2,
+                      child: StreamBuilder<DateTime>(
+                        stream: Stream.periodic(
+                          const Duration(seconds: 1),
+                          (_) => DateTime.now(),
                         ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            // Reset ayatNumber to 1 to start from the beginning
-                            ayatNumber = 1;
-                            _playAudio();
-                          });
+                        builder: (context, snapshot) {
+                          final currentTime = snapshot.data ?? DateTime.now();
+                          final formattedTime =
+                              '${currentTime.hour.toString().padLeft(2, '0')}:${currentTime.minute.toString().padLeft(2, '0')}:${currentTime.second.toString().padLeft(2, '0')}';
+                          return TabWidget(
+                            childContent: Text(
+                              formattedTime,
+                              style: GoogleFonts.bebasNeue(
+                                fontSize: 32,
+                                color: Colors.blueAccent[200],
+                              ),
+                            ),
+                          );
                         },
-                        child: const Text('Mulai dari Awal'),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
+              Padding(
+                padding: const EdgeInsets.only(right: 10.0, left: 10.0),
+                child: Container(
+                  height: 550,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color.fromARGB(0, 0, 0, 0)),
+                    borderRadius: BorderRadius.circular(2),
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                    image: DecorationImage(
+                      image: AssetImage(
+                        'assets/background/thomas-vimare-IZ01rjX0XQA-unsplash.jpg',
+                      ),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Flex(
+                      direction: Axis.vertical,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: Text(
+                            'QS. $surah : $ayatNumber',
+                            style: GoogleFonts.bebasNeue(
+                              fontSize: 48,
+                              color: Colors.white,
+                              shadows: [
+                                Shadow(
+                                  offset: Offset(2.0, 2.0),
+                                  blurRadius: 4.0,
+                                  color: Colors.black.withOpacity(0.5),
+                                ),
+                              ],
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        Expanded(
+                          flex: 5,
+                          child: Center(
+                            child: Text(
+                              quran.getVerse(surahNumber, ayatNumber),
+                              style: GoogleFonts.getFont(
+                                'Amiri Quran',
+                                fontSize: 36,
+                                color: Colors.black,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 3,
+                          child: Center(
+                            child: FutureBuilder<String>(
+                              future: _getTerjemahan(surahNumber, ayatNumber),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const CircularProgressIndicator();
+                                } else if (snapshot.hasError) {
+                                  return const Text('Gagal memuat terjemahan');
+                                } else {
+                                  return Text(
+                                    snapshot.data ??
+                                        'Terjemahan tidak tersedia',
+                                    style: GoogleFonts.bebasNeue(
+                                      fontSize: 18,
+                                      color: Colors.white,
+                                      shadows: [
+                                        Shadow(
+                                          offset: Offset(2.0, 2.0),
+                                          blurRadius: 4.0,
+                                          color: Colors.black.withOpacity(0.5),
+                                        ),
+                                      ],
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  );
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                // Reset ayatNumber to 1 to start from the beginning
+                                ayatNumber = 1;
+                                _playAudio();
+                              });
+                            },
+                            child: const Text('Mulai dari Awal'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class TabWidget extends StatelessWidget {
+  final dynamic childContent;
+
+  const TabWidget({super.key, required this.childContent});
+
+  get content => null;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 57,
+      decoration: BoxDecoration(
+        border: Border.all(color: const Color.fromARGB(0, 0, 0, 0)),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(10),
+          topRight: Radius.circular(10),
+        ),
+        color: const Color.fromARGB(155, 255, 255, 255),
+      ),
+      child: Center(
+        child:
+            childContent ??
+            const Text(
+              'Tidak ada data',
+              style: TextStyle(fontSize: 16, color: Colors.black),
+            ),
+      ),
     );
   }
 }
