@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 
+import 'package:display_masjid/waktusholat.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -46,8 +48,50 @@ String _namaHari(int weekday) {
   return hari[weekday]!;
 }
 
+Duration waktuMenujuSholat(WaktuSholat waktu) {
+  final now = DateTime.now();
+  final parts = waktu.waktuSholat.split(':');
+  final target = DateTime(
+    now.year,
+    now.month,
+    now.day,
+    int.parse(parts[0]),
+    int.parse(parts[1]),
+  );
+  if (target.isBefore(now)) {
+    return Duration.zero;
+  }
+  return target.difference(now);
+}
+
+WaktuSholat? getWaktuSholatTerdekat(List<WaktuSholat> waktuList) {
+  final now = DateTime.now();
+  final nowMinutes = now.hour * 60 + now.minute;
+
+  for (final waktu in waktuList) {
+    final parts = waktu.waktuSholat.split(':');
+    final jam = int.parse(parts[0]);
+    final menit = int.parse(parts[1]);
+    final waktuMinutes = jam * 60 + menit;
+
+    if (waktuMinutes >= nowMinutes) {
+      return waktu;
+    }
+  }
+
+  return waktuList.first;
+}
+
 class DisplayWidgetQuran extends StatefulWidget {
-  const DisplayWidgetQuran({super.key});
+  final List<WaktuSholat> waktuSholat;
+  final String? waktuAzan;
+  final String? jamAzan;
+  const DisplayWidgetQuran({
+    super.key,
+    required this.waktuSholat,
+    this.waktuAzan,
+    this.jamAzan,
+  });
 
   @override
   State<DisplayWidgetQuran> createState() => _DisplayWidgetQuranState();
@@ -62,16 +106,23 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
   List<String> mosqueImages = [];
   late Future<List<String>> _mosqueImagesFuture;
   int currentSurahIndex = 0;
-
   int surahNumber = 1;
   int ayatNumber = 1;
   late int jumlahAyat;
+  late WaktuSholat targetWaktu;
+  WaktuSholat? waktuSholat;
+  String? waktuAzan;
+  String? jamAzan;
+  Duration remaining = Duration.zero;
+  Timer? timer;
+  bool waktuTiba = false;
 
   @override
   void initState() {
     super.initState();
     _mosqueImagesFuture = getMosqueImages(); // hanya dipanggil sekali
 
+    targetWaktu = getWaktuSholatTerdekat(widget.waktuSholat)!;
     // Mendapatkan playlist Quran
     getQuranPlaylist().then((playlist) {
       setState(() {
@@ -189,6 +240,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
 
   @override
   void dispose() {
+    timer?.cancel();
     player.dispose();
     super.dispose();
   }
@@ -196,6 +248,10 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
   @override
   Widget build(BuildContext context) {
     final surah = quran.getSurahName(surahNumber);
+
+    // waktu azan
+    waktuAzan = widget.waktuAzan;
+    jamAzan = widget.jamAzan;
 
     return Row(
       children: [
@@ -302,12 +358,86 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
                     Expanded(flex: 6, child: Container()),
                     Expanded(
                       flex: 2,
-                      child: TabWidget(
-                        childContent: Text(
-                          'Surah: $surahNumber',
-                          style: GoogleFonts.bebasNeue(
-                            fontSize: 24,
-                            color: Colors.black,
+                      child: Center(
+                        child: TabWidget(
+                          childContent: Column(
+                            children: [
+                              Text(
+                                '$waktuAzan',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.bebasNeue(
+                                  fontSize: 24,
+                                  color: Colors.black,
+                                  height: 0.8,
+                                ),
+                              ),
+                              StreamBuilder<DateTime>(
+                                stream: Stream.periodic(
+                                  const Duration(seconds: 1),
+                                  (_) => DateTime.now(),
+                                ),
+                                builder: (context, snapshot) {
+                                  final currentTime =
+                                      snapshot.data ?? DateTime.now();
+                                  final parts = targetWaktu.waktuSholat.split(
+                                    ':',
+                                  );
+                                  final jam = int.parse(parts[0]);
+                                  final menit = int.parse(parts[1]);
+                                  final targetTime = DateTime(
+                                    currentTime.year,
+                                    currentTime.month,
+                                    currentTime.day,
+                                    jam,
+                                    menit,
+                                  );
+                                  final durasi = targetTime.difference(
+                                    currentTime,
+                                  );
+                                  print('Target waktu sholat: $targetTime');
+                                  print('Durasi menuju sholat: $durasi');
+                                  if (durasi.isNegative) {
+                                    // perbarui targetWaktu jika sudah lewat dengan mengambil waktu sholat setelahnya
+                                    final nextWaktu = widget.waktuSholat
+                                        .firstWhere(
+                                          (waktu) {
+                                            final parts = waktu.waktuSholat
+                                                .split(':');
+                                            final jamWaktu = int.parse(
+                                              parts[0],
+                                            );
+                                            final menitWaktu = int.parse(
+                                              parts[1],
+                                            );
+                                            final waktuSholatTime = DateTime(
+                                              currentTime.year,
+                                              currentTime.month,
+                                              currentTime.day,
+                                              jamWaktu,
+                                              menitWaktu,
+                                            );
+                                            return waktuSholatTime.isAfter(
+                                              currentTime,
+                                            );
+                                          },
+                                          orElse: () =>
+                                              widget.waktuSholat.first,
+                                        );
+                                    targetWaktu = nextWaktu;
+                                    waktuTiba = true; // Set waktuTiba ke true
+                                  }
+                                  final formattedTime =
+                                      '${durasi.inHours.remainder(60).toString().padLeft(2, '0')}:${durasi.inMinutes.remainder(60).toString().padLeft(2, '0')}:${durasi.inSeconds.remainder(60).toString().padLeft(2, '0')}';
+                                  return Text(
+                                    formattedTime,
+                                    style: GoogleFonts.bebasNeue(
+                                      fontSize: 24,
+                                      color: Colors.black,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -471,7 +601,7 @@ class TabWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 57,
+      height: 70,
       decoration: BoxDecoration(
         border: Border.all(color: const Color.fromARGB(0, 0, 0, 0)),
         borderRadius: const BorderRadius.only(
