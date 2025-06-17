@@ -11,6 +11,8 @@ dependencies:
   google_fonts: ^6.2.1
   quran: ^1.2.3
   just_audio: ^0.9.33
+  just_audio_media_kit: any # substitute version number
+  media_kit_libs_windows_audio: any # substitute version number
   carousel_slider_x: ^6.0.7
   flutter:
     sdk: flutter

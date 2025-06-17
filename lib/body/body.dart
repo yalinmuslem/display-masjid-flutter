@@ -9,9 +9,10 @@ class DisplayBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         DisplayHeader(),
-        DisplayWidgetQuran(),
+        Expanded(child: SingleChildScrollView(child: DisplayWidgetQuran())),
       ],
     );
   }

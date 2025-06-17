@@ -104,6 +104,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
             // Increment ayatNumber to play the next ayat
             ayatNumber++;
           });
+          // player.dispose(); // Dispose the previous player instance
           _playAudio();
         } else {
           // Jika sudah mencapai akhir surah, reset ke ayat pertama
@@ -115,6 +116,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
                   1; // Reset ke surah pertama jika sudah melewati jumlah surah
             }
           });
+          // player.dispose(); // Dispose the previous player instance
           _playAudio();
         }
       }
@@ -135,12 +137,11 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
 
   // list mosque_images from folder assets/mosque_images dynamically
   Future<List<String>> getMosqueImages() async {
-    final imageFolder = 'assets/mosque_images';
     final images = <String>[];
 
     for (int i = 1; i <= 10; i++) {
       try {
-        final imagePath = '$imageFolder/images-$i.jpg';
+        final imagePath = 'assets/mosque_images/images-$i.jpg';
         // Check if the file exists in the assets
         await rootBundle.load(imagePath);
         images.add(imagePath);
@@ -159,13 +160,6 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
 
     return images;
   }
-  // String _getImageAssetPath(int surah, int ayat) {
-  //   print(
-  //     'Memuat gambar untuk Surah $surah, Ayat $ayat: assets/quran_images/$surah/${surah}_$ayat.png',
-  //   );
-  //   final url = 'quran_images/$surah/${surah}_$ayat.png';
-  //   return url;
-  // }
 
   Future<String> _getTerjemahan(int surah, int ayat) async {
     final terjemahanFile = 'assets/surah/$surah.json';
@@ -198,8 +192,6 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
   Widget build(BuildContext context) {
     final surah = quran.getSurahName(surahNumber);
 
-    print('mosqueImages.length: ${mosqueImages.length}');
-
     return Row(
       children: [
         Expanded(
@@ -210,7 +202,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Container(
-                  height: 200,
+                  height: 350,
                   width: double.infinity,
                   decoration: BoxDecoration(
                     border: Border.all(color: const Color.fromARGB(0, 0, 0, 0)),
@@ -239,13 +231,15 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
                           itemBuilder: (context, index, realIndex) {
                             return Image.asset(
                               mosqueImages[index],
-                              fit: BoxFit.fill,
+                              fit: BoxFit.fitWidth,
+                              width: double.infinity,
                             );
                           },
                           options: CarouselOptions(
                             autoPlay: true,
-                            aspectRatio: 2.0,
+                            aspectRatio: 1 / 1,
                             enlargeCenterPage: false,
+                            viewportFraction: 1.0,
                           ),
                         );
                       }
@@ -293,7 +287,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
           child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Container(
-              height: 450,
+              height: 550,
               decoration: BoxDecoration(
                 border: Border.all(color: const Color.fromARGB(0, 0, 0, 0)),
                 borderRadius: BorderRadius.circular(2),
@@ -315,71 +309,72 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: Column(
+                child: Flex(
+                  direction: Axis.vertical,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'QS. $surah : $ayatNumber',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                    Expanded(
+                      flex: 1,
+                      child: Text(
+                        'QS. $surah : $ayatNumber',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 35.0),
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(minHeight: 150),
+                    Expanded(
+                      flex: 5,
+                      child: Center(
                         child: Text(
                           quran.getVerse(surahNumber, ayatNumber),
                           style: GoogleFonts.getFont(
                             'Amiri Quran',
-                            fontSize: 35,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 36,
+                            color: Colors.black,
                           ),
                           textAlign: TextAlign.center,
                         ),
                       ),
                     ),
-                    // Image.asset(
-                    //   _getImageAssetPath(surahNumber, ayatNumber),
-                    //   fit: BoxFit.contain,
-                    //   width: double.infinity,
-                    //   errorBuilder: (context, error, stackTrace) =>
-                    //       const Text('Gambar tidak ditemukan!!'),
-                    // ),),
-                    const SizedBox(height: 12),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 35.0),
-                      child: FutureBuilder<String>(
-                        future: _getTerjemahan(surahNumber, ayatNumber),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const CircularProgressIndicator();
-                          } else if (snapshot.hasError) {
-                            return const Text('Terjemahan tidak tersedia');
-                          } else {
-                            return Text(
-                              snapshot.data ?? 'Terjemahan tidak ditemukan',
-                              style: const TextStyle(
-                                fontSize: 24,
-                                color: Colors.white,
-                              ),
-                              textAlign: TextAlign.center,
-                            );
-                          }
-                        },
+                    Expanded(
+                      flex: 3,
+                      child: Center(
+                        child: FutureBuilder<String>(
+                          future: _getTerjemahan(surahNumber, ayatNumber),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const CircularProgressIndicator();
+                            } else if (snapshot.hasError) {
+                              return const Text('Gagal memuat terjemahan');
+                            } else {
+                              return Text(
+                                snapshot.data ?? 'Terjemahan tidak tersedia',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                ),
+                                textAlign: TextAlign.center,
+                              );
+                            }
+                          },
+                        ),
                       ),
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          // Reset ayatNumber to 1 to start from the beginning
-                          ayatNumber = 1;
-                          _playAudio();
-                        });
-                      },
-                      child: const Text('Mulai dari Awal'),
+                    Expanded(
+                      flex: 1,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            // Reset ayatNumber to 1 to start from the beginning
+                            ayatNumber = 1;
+                            _playAudio();
+                          });
+                        },
+                        child: const Text('Mulai dari Awal'),
+                      ),
                     ),
                   ],
                 ),
