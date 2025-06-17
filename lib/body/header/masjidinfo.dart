@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MasjidInfo {
   final String namaMasjid;
@@ -45,14 +46,46 @@ class DisplayInfoMasjid extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  masjidInfo.namaMasjid, // Use null-aware operator
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10), // Add space between texts
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Masjid ', // Use null-aware operator
+                      style: GoogleFonts.bebasNeue(
+                        fontSize: 48,
+                        color: Colors.blueAccent[200],
+                        shadows: [
+                          Shadow(
+                            offset: Offset(2.0, 2.0),
+                            blurRadius: 4.0,
+                            color: Colors.white.withOpacity(0.5),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      masjidInfo.namaMasjid, // Use null-aware operator
+                      style: GoogleFonts.bebasNeue(
+                        fontSize: 48,
+                        color: Colors.yellow[600],
+                        shadows: [
+                          Shadow(
+                            offset: Offset(2.0, 2.0),
+                            blurRadius: 4.0,
+                            color: Colors.black.withOpacity(0.5),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ), // Add space between texts
                 Text(
                   masjidInfo.alamatMasjid, // Use null-aware operator
-                  style: TextStyle(fontSize: 18),
+                  style: GoogleFonts.bebasNeue(
+                    fontSize: 26,
+                    color: Colors.blueAccent[200],
+                  ),
                 ),
               ],
             ),

@@ -79,8 +79,41 @@ class HijriahDate {
   HijriahDate() {
     final hijriDate = HijriCalendar.now();
     day = hijriDate.hDay;
-    monthName = hijriDate.longMonthName; // Replace with actual month name logic
+    monthName = _getNamaBulan(
+      hijriDate.hMonth,
+    ); // Replace with actual month name logic
     year = hijriDate.hYear;
+  }
+
+  static String _getNamaBulan(int month) {
+    switch (month) {
+      case 1:
+        return 'Muharram';
+      case 2:
+        return 'Safar';
+      case 3:
+        return 'Rabiul Awal';
+      case 4:
+        return 'Rabiul Akhir';
+      case 5:
+        return 'Jumada Awal';
+      case 6:
+        return 'Jumada Akhir';
+      case 7:
+        return 'Rajab';
+      case 8:
+        return 'Sya\'ban';
+      case 9:
+        return 'Ramadhan';
+      case 10:
+        return 'Syawal';
+      case 11:
+        return 'Dzulqa\'idah';
+      case 12:
+        return 'Dzulhijjah';
+      default:
+        return '';
+    }
   }
 }
 
