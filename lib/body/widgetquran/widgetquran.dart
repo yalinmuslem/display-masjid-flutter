@@ -60,6 +60,8 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
   List<dynamic> quranPlaylist = [];
   Map<String, dynamic>? surahHariIni;
   List<String> mosqueImages = [];
+  late Future<List<String>> _mosqueImagesFuture;
+  int currentSurahIndex = 0;
 
   int surahNumber = 1;
   int ayatNumber = 1;
@@ -68,6 +70,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
   @override
   void initState() {
     super.initState();
+    _mosqueImagesFuture = getMosqueImages(); // hanya dipanggil sekali
 
     // Mendapatkan playlist Quran
     getQuranPlaylist().then((playlist) {
@@ -75,7 +78,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
         quranPlaylist = playlist;
         if (quranPlaylist.isNotEmpty) {
           // Ambil surah pertama dari playlist
-          surahHariIni = quranPlaylist[0];
+          surahHariIni = quranPlaylist[currentSurahIndex];
           surahNumber = surahHariIni!['nomor_surat'];
           ayatNumber = 1; // Mulai dari ayat pertama
           jumlahAyat = quran.getVerseCount(surahNumber);
@@ -110,11 +113,13 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
           // Jika sudah mencapai akhir surah, reset ke ayat pertama
           setState(() {
             ayatNumber = 1;
-            surahNumber++;
-            if (surahNumber > quranPlaylist.length) {
-              surahNumber =
-                  1; // Reset ke surah pertama jika sudah melewati jumlah surah
+            currentSurahIndex++;
+            if (currentSurahIndex >= quranPlaylist.length) {
+              currentSurahIndex = 0; // ulang dari awal playlist
             }
+            surahHariIni = quranPlaylist[currentSurahIndex];
+            surahNumber = surahHariIni!['nomor_surat'];
+            jumlahAyat = quran.getVerseCount(surahNumber);
           });
           // player.dispose(); // Dispose the previous player instance
           _playAudio();
@@ -218,7 +223,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
                     ],
                   ),
                   child: FutureBuilder<List<String>>(
-                    future: getMosqueImages(),
+                    future: _mosqueImagesFuture,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
