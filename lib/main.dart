@@ -21,14 +21,12 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => WaktusholatBloc(),
-        ),
-      ],
-      child: Scaffold(body: _DisplayWaktuSholat()),
-    ));
+    return MaterialApp(
+      home: MultiBlocProvider(
+        providers: [BlocProvider(create: (context) => WaktusholatBloc())],
+        child: Scaffold(body: _DisplayWaktuSholat()),
+      ),
+    );
   }
 }
 
@@ -38,39 +36,34 @@ class _DisplayWaktuSholat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // final waktuSholatList = context.read<WaktusholatBloc>();
-    
+
     return BlocBuilder<WaktusholatBloc, WaktuSholatState>(
       builder: (context, state) {
         return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(
-            'assets/background/guillaume-galtier-3YrppYQPoCI-unsplash.jpg',
-          ),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 8, // 70% of the screen
-            // child: Container(),
-            child: DisplayBody(
-              waktuSholatList: state.waktuSholatList,
-              waktuAzan: state.waktuSholatTerdekat, // Use the nearest prayer time from the state
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(
+                'assets/background/guillaume-galtier-3YrppYQPoCI-unsplash.jpg',
+              ),
+              fit: BoxFit.cover,
             ),
           ),
-          Expanded(
-            flex: 2, // 30% of the screen
-            // child: Container(),
-            child: DisplayWaktuSholat(
-              waktuSholatList: state.waktuSholatList, // Use the loaded data from the state
-            ),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 8, // 70% of the screen
+                // child: Container(),
+                child: DisplayBody(),
+              ),
+              Expanded(
+                flex: 2, // 30% of the screen
+                // child: Container(),
+                child: DisplayWaktuSholat(),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
-      } 
-      );
   }
 }
