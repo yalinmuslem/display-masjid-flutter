@@ -16,6 +16,7 @@ dependencies:
   carousel_slider_x: ^6.0.7
   flutter:
     sdk: flutter
+  flutter_bloc: ^9.1.1
 
 dev_dependencies:
   flutter_test:

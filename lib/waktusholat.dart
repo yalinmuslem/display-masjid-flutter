@@ -74,6 +74,7 @@ class _WidgetWaktuSholat extends StatelessWidget {
                       color: Colors.black.withOpacity(0.5),
                     ),
                   ],
+                  height: 0.8
                 ),
                 textAlign: TextAlign.center,
               ),
