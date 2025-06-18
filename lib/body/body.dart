@@ -1,19 +1,17 @@
 import 'package:display_masjid/body/header/header.dart';
 import 'package:display_masjid/body/widgetquran/widgetquran.dart';
-import 'package:display_masjid/waktusholat.dart';
+import 'package:display_masjid/model/waktusholat.dart';
 import 'package:flutter/material.dart';
 
 class DisplayBody extends StatelessWidget {
   // get waktu sholat
   final List<WaktuSholat> waktuSholatList;
-  final String? waktuAzan;
-  final String? jamAzan;
+  final List<dynamic> waktuAzan;
 
   const DisplayBody({
     super.key,
     required this.waktuSholatList,
-    this.waktuAzan,
-    this.jamAzan,
+    required this.waktuAzan,
   });
 
   @override
@@ -28,7 +26,6 @@ class DisplayBody extends StatelessWidget {
             child: DisplayWidgetQuran(
               waktuSholat: waktuSholatList,
               waktuAzan: waktuAzan,
-              jamAzan: jamAzan,
             ),
           ),
         ),

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:display_masjid/waktusholat.dart';
+import 'package:display_masjid/services/quran_playlist_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,88 +9,14 @@ import 'package:just_audio/just_audio.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:carousel_slider_x/carousel_slider_x.dart';
 
-Future<List> getQuranPlaylist() async {
-  try {
-    final jsonString = await rootBundle.loadString(
-      'assets/playlist_quran.json',
-    );
-    final Map<String, dynamic> data = json.decode(jsonString);
-
-    // Ambil hari ini (misal Senin)
-    final now = DateTime.now();
-    final namaHari = _namaHari(now.weekday); // "Senin", "Selasa", dst
-
-    if (data.containsKey(namaHari)) {
-      final List<dynamic> daftarSurah = data[namaHari];
-
-      print(daftarSurah);
-
-      return daftarSurah; // Mengembalikan daftar surah
-    } else {
-      print('Tidak ada playlist untuk hari $namaHari.');
-    }
-  } catch (e) {
-    print('Terjadi kesalahan saat membaca file: $e');
-  }
-  return []; // Return an empty list if no playlist is found or an error occurs
-}
-
-String _namaHari(int weekday) {
-  const hari = {
-    1: 'Senin',
-    2: 'Selasa',
-    3: 'Rabu',
-    4: 'Kamis',
-    5: 'Jumat',
-    6: 'Sabtu',
-    7: 'Minggu',
-  };
-  return hari[weekday]!;
-}
-
-Duration waktuMenujuSholat(WaktuSholat waktu) {
-  final now = DateTime.now();
-  final parts = waktu.waktuSholat.split(':');
-  final target = DateTime(
-    now.year,
-    now.month,
-    now.day,
-    int.parse(parts[0]),
-    int.parse(parts[1]),
-  );
-  if (target.isBefore(now)) {
-    return Duration.zero;
-  }
-  return target.difference(now);
-}
-
-WaktuSholat? getWaktuSholatTerdekat(List<WaktuSholat> waktuList) {
-  final now = DateTime.now();
-  final nowMinutes = now.hour * 60 + now.minute;
-
-  for (final waktu in waktuList) {
-    final parts = waktu.waktuSholat.split(':');
-    final jam = int.parse(parts[0]);
-    final menit = int.parse(parts[1]);
-    final waktuMinutes = jam * 60 + menit;
-
-    if (waktuMinutes >= nowMinutes) {
-      return waktu;
-    }
-  }
-
-  return waktuList.first;
-}
-
 class DisplayWidgetQuran extends StatefulWidget {
-  final List<WaktuSholat> waktuSholat;
-  final String? waktuAzan;
-  final String? jamAzan;
+  final List<dynamic> waktuSholat;
+  final List<dynamic> waktuAzan;
+
   const DisplayWidgetQuran({
     super.key,
     required this.waktuSholat,
-    this.waktuAzan,
-    this.jamAzan,
+    required this.waktuAzan,
   });
 
   @override
@@ -109,20 +35,12 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
   int surahNumber = 1;
   int ayatNumber = 1;
   late int jumlahAyat;
-  late WaktuSholat targetWaktu;
-  WaktuSholat? waktuSholat;
-  String? waktuAzan;
-  String? jamAzan;
-  Duration remaining = Duration.zero;
-  Timer? timer;
-  bool waktuTiba = false;
 
   @override
   void initState() {
     super.initState();
     _mosqueImagesFuture = getMosqueImages(); // hanya dipanggil sekali
 
-    targetWaktu = getWaktuSholatTerdekat(widget.waktuSholat)!;
     // Mendapatkan playlist Quran
     getQuranPlaylist().then((playlist) {
       setState(() {
@@ -240,7 +158,6 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
 
   @override
   void dispose() {
-    timer?.cancel();
     player.dispose();
     super.dispose();
   }
@@ -249,9 +166,9 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
   Widget build(BuildContext context) {
     final surah = quran.getSurahName(surahNumber);
 
-    // waktu azan
-    waktuAzan = widget.waktuAzan;
-    jamAzan = widget.jamAzan;
+    for (var waktu in widget.waktuAzan) {
+      print('Waktu Azan: ${waktu.waktu} ${waktu.waktuSholat}');
+    }
 
     return Row(
       children: [
@@ -362,81 +279,81 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
                         child: TabWidget(
                           childContent: Column(
                             children: [
-                              Text(
-                                '$waktuAzan',
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.bebasNeue(
-                                  fontSize: 24,
-                                  color: Colors.black,
-                                  height: 0.8,
-                                ),
-                              ),
-                              StreamBuilder<DateTime>(
-                                stream: Stream.periodic(
-                                  const Duration(seconds: 1),
-                                  (_) => DateTime.now(),
-                                ),
-                                builder: (context, snapshot) {
-                                  final currentTime =
-                                      snapshot.data ?? DateTime.now();
-                                  final parts = targetWaktu.waktuSholat.split(
-                                    ':',
-                                  );
-                                  final jam = int.parse(parts[0]);
-                                  final menit = int.parse(parts[1]);
-                                  final targetTime = DateTime(
-                                    currentTime.year,
-                                    currentTime.month,
-                                    currentTime.day,
-                                    jam,
-                                    menit,
-                                  );
-                                  final durasi = targetTime.difference(
-                                    currentTime,
-                                  );
-                                  print('Target waktu sholat: $targetTime');
-                                  print('Durasi menuju sholat: $durasi');
-                                  if (durasi.isNegative) {
-                                    // perbarui targetWaktu jika sudah lewat dengan mengambil waktu sholat setelahnya
-                                    final nextWaktu = widget.waktuSholat
-                                        .firstWhere(
-                                          (waktu) {
-                                            final parts = waktu.waktuSholat
-                                                .split(':');
-                                            final jamWaktu = int.parse(
-                                              parts[0],
-                                            );
-                                            final menitWaktu = int.parse(
-                                              parts[1],
-                                            );
-                                            final waktuSholatTime = DateTime(
-                                              currentTime.year,
-                                              currentTime.month,
-                                              currentTime.day,
-                                              jamWaktu,
-                                              menitWaktu,
-                                            );
-                                            return waktuSholatTime.isAfter(
-                                              currentTime,
-                                            );
-                                          },
-                                          orElse: () =>
-                                              widget.waktuSholat.first,
-                                        );
-                                    targetWaktu = nextWaktu;
-                                    waktuTiba = true; // Set waktuTiba ke true
-                                  }
-                                  final formattedTime =
-                                      '${durasi.inHours.remainder(60).toString().padLeft(2, '0')}:${durasi.inMinutes.remainder(60).toString().padLeft(2, '0')}:${durasi.inSeconds.remainder(60).toString().padLeft(2, '0')}';
-                                  return Text(
-                                    formattedTime,
-                                    style: GoogleFonts.bebasNeue(
-                                      fontSize: 24,
-                                      color: Colors.black,
-                                    ),
-                                  );
-                                },
-                              ),
+                              // Text(
+                              //   '$waktuAzan',
+                              //   textAlign: TextAlign.center,
+                              //   style: GoogleFonts.bebasNeue(
+                              //     fontSize: 24,
+                              //     color: Colors.black,
+                              //     height: 0.8,
+                              //   ),
+                              // ),
+                              // StreamBuilder<DateTime>(
+                              //   stream: Stream.periodic(
+                              //     const Duration(seconds: 1),
+                              //     (_) => DateTime.now(),
+                              //   ),
+                              //   builder: (context, snapshot) {
+                              //     final currentTime =
+                              //         snapshot.data ?? DateTime.now();
+                              //     final parts = targetWaktu.waktuSholat.split(
+                              //       ':',
+                              //     );
+                              //     final jam = int.parse(parts[0]);
+                              //     final menit = int.parse(parts[1]);
+                              //     final targetTime = DateTime(
+                              //       currentTime.year,
+                              //       currentTime.month,
+                              //       currentTime.day,
+                              //       jam,
+                              //       menit,
+                              //     );
+                              //     final durasi = targetTime.difference(
+                              //       currentTime,
+                              //     );
+                              //     print('Target waktu sholat: $targetTime');
+                              //     print('Durasi menuju sholat: $durasi');
+                              //     if (durasi.isNegative) {
+                              //       // perbarui targetWaktu jika sudah lewat dengan mengambil waktu sholat setelahnya
+                              //       final nextWaktu = widget.waktuSholat
+                              //           .firstWhere(
+                              //             (waktu) {
+                              //               final parts = waktu.waktuSholat
+                              //                   .split(':');
+                              //               final jamWaktu = int.parse(
+                              //                 parts[0],
+                              //               );
+                              //               final menitWaktu = int.parse(
+                              //                 parts[1],
+                              //               );
+                              //               final waktuSholatTime = DateTime(
+                              //                 currentTime.year,
+                              //                 currentTime.month,
+                              //                 currentTime.day,
+                              //                 jamWaktu,
+                              //                 menitWaktu,
+                              //               );
+                              //               return waktuSholatTime.isAfter(
+                              //                 currentTime,
+                              //               );
+                              //             },
+                              //             orElse: () =>
+                              //                 widget.waktuSholat.first,
+                              //           );
+                              //       targetWaktu = nextWaktu;
+                              //       waktuTiba = true; // Set waktuTiba ke true
+                              //     }
+                              //     final formattedTime =
+                              //         '${durasi.inHours.remainder(60).toString().padLeft(2, '0')}:${durasi.inMinutes.remainder(60).toString().padLeft(2, '0')}:${durasi.inSeconds.remainder(60).toString().padLeft(2, '0')}';
+                              //     return Text(
+                              //       formattedTime,
+                              //       style: GoogleFonts.bebasNeue(
+                              //         fontSize: 24,
+                              //         color: Colors.black,
+                              //       ),
+                              //     );
+                              //   },
+                              // ),
                             ],
                           ),
                         ),

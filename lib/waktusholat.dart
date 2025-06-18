@@ -1,22 +1,7 @@
 // class list waktu sholat hari ini
+import 'package:display_masjid/model/waktusholat.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-class WaktuSholat {
-  final String waktu;
-  final String waktuSholat;
-  final Color? color; // Add the color property
-
-  WaktuSholat({required this.waktu, required this.waktuSholat, this.color});
-
-  factory WaktuSholat.fromJson(Map<String, dynamic> json) {
-    return WaktuSholat(
-      waktu: json['waktu'] as String,
-      waktuSholat: json['waktu_sholat'] as String,
-      color: json['color'], // Parse color if provided
-    );
-  }
-}
 
 class _WidgetWaktuSholat extends StatelessWidget {
   final WaktuSholat waktuSholat;

@@ -1,3 +1,4 @@
+import 'package:display_masjid/body/body.dart';
 import 'package:display_masjid/waktusholat_bloc/waktusholat_bloc.dart';
 import 'package:display_masjid/waktusholat_bloc/waktusholat_state.dart';
 import 'package:display_masjid/waktusholat.dart';
@@ -36,23 +37,8 @@ class _DisplayWaktuSholat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final waktuSholatList = context.read<WaktusholatBloc>();
-
-    for (final waktu in waktuSholatList.state.waktuSholatList) {
-      if (kDebugMode) {
-        print(
-          'Waktu sholat: ${waktu.waktuSholat} (${waktu.waktu})',
-        );
-      }
-    }
+    // final waktuSholatList = context.read<WaktusholatBloc>();
     
-    // Load WaktuSholat data from asset
-    // final List<WaktuSholat> loadWaktuSholat = loadWaktuSholatFromAsset();
-    // final WaktuSholat? terdekat = getWaktuSholatTerdekat(loadWaktuSholat);
-
-    // print(
-    //   'Waktu sholat terdekat: ${terdekat?.waktuSholat} (${terdekat?.waktu})',
-    // );
     return BlocBuilder<WaktusholatBloc, WaktuSholatState>(
       builder: (context, state) {
         return Container(
@@ -68,12 +54,11 @@ class _DisplayWaktuSholat extends StatelessWidget {
         children: [
           Expanded(
             flex: 8, // 70% of the screen
-            child: Container(),
-            // child: DisplayBody(
-            //   waktuSholatList: loadWaktuSholat,
-            //   waktuAzan: terdekat?.waktu,
-            //   jamAzan: terdekat?.waktuSholat,
-            // ),
+            // child: Container(),
+            child: DisplayBody(
+              waktuSholatList: state.waktuSholatList,
+              waktuAzan: state.waktuSholatTerdekat, // Use the nearest prayer time from the state
+            ),
           ),
           Expanded(
             flex: 2, // 30% of the screen
