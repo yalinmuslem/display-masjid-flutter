@@ -1,7 +1,6 @@
-// class list waktu sholat hari ini
 import 'package:display_masjid/model/waktusholat.dart';
-import 'package:display_masjid/waktusholat_bloc/waktusholat_bloc.dart';
-import 'package:display_masjid/waktusholat_bloc/waktusholat_state.dart';
+import 'package:display_masjid/bloc/waktusholat_bloc/waktusholat_bloc.dart';
+import 'package:display_masjid/bloc/waktusholat_bloc/waktusholat_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';

@@ -16,43 +16,7 @@ class WaktuSholat {
   }
 }
 
-
-List<WaktuSholat> loadWaktuSholatFromAsset() {
-  return [
-    WaktuSholat(
-      waktu: "Subuh",
-      waktuSholat: "04:30",
-      color: Color(0xFFFFD1DC), // Pastel pink
-    ),
-    WaktuSholat(
-      waktu: "Fajar",
-      waktuSholat: "10:00",
-      color: Color(0xFFFFE0B2),
-    ), // Pastel orange
-    WaktuSholat(
-      waktu: "Dzuhur",
-      waktuSholat: "12:00",
-      color: Color(0xFFB2F7EF), // Pastel teal
-    ),
-    WaktuSholat(
-      waktu: "Ashar",
-      waktuSholat: "15:30",
-      color: Color(0xFFFFF5BA), // Pastel yellow
-    ),
-    WaktuSholat(
-      waktu: "Maghrib",
-      waktuSholat: "18:00",
-      color: Color(0xFFB9FBC0), // Pastel green
-    ),
-    WaktuSholat(
-      waktu: "Isya",
-      waktuSholat: "18:47",
-      color: Color(0xFFB5B9FC), // Pastel blue
-    ),
-  ];
-}
-
-WaktuSholat? getWaktuSholatTerdekat(List<WaktuSholat> waktuList) {
+WaktuSholat getWaktuSholatTerdekat(List<WaktuSholat> waktuList) {
   final now = DateTime.now();
   final nowMinutes = now.hour * 60 + now.minute;
 

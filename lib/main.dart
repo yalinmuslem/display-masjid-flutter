@@ -1,6 +1,10 @@
+import 'package:display_masjid/bloc/azan_bloc/azan_bloc.dart';
+import 'package:display_masjid/bloc/azan_bloc/azan_state.dart';
+import 'package:display_masjid/body/azan.dart';
 import 'package:display_masjid/body/body.dart';
-import 'package:display_masjid/waktusholat_bloc/waktusholat_bloc.dart';
-import 'package:display_masjid/waktusholat_bloc/waktusholat_state.dart';
+import 'package:display_masjid/bloc/waktusholat_bloc/waktusholat_bloc.dart';
+import 'package:display_masjid/bloc/waktusholat_bloc/waktusholat_event.dart';
+import 'package:display_masjid/bloc/waktusholat_bloc/waktusholat_state.dart';
 import 'package:display_masjid/waktusholat.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +27,10 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: MultiBlocProvider(
-        providers: [BlocProvider(create: (context) => WaktusholatBloc())],
+        providers: [
+          BlocProvider(create: (context) => WaktusholatBloc()),
+          BlocProvider(create: (context) => AzanBloc()),
+        ],
         child: Scaffold(body: _DisplayWaktuSholat()),
       ),
     );
@@ -35,35 +42,54 @@ class _DisplayWaktuSholat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final waktuSholatList = context.read<WaktusholatBloc>();
+    context.read<WaktusholatBloc>().add(LoadWaktuSholatFromApi());
 
-    return BlocBuilder<WaktusholatBloc, WaktuSholatState>(
-      builder: (context, state) {
-        return Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage(
-                'assets/background/guillaume-galtier-3YrppYQPoCI-unsplash.jpg',
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<WaktusholatBloc, WaktuSholatState>(
+          listener: (context, state) {
+            // Handle WaktusholatBloc state changes if needed
+          },
+        ),
+        BlocListener<AzanBloc, AzanState>(
+          listener: (context, state) {
+            if (state.isAzanPlaying) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AzanPage(),
+                ),
+              );
+            }
+          },
+        ),
+      ],
+      child: BlocBuilder<WaktusholatBloc, WaktuSholatState>(
+        builder: (context, state) {
+          return Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage(
+                  'assets/background/guillaume-galtier-3YrppYQPoCI-unsplash.jpg',
+                ),
+                fit: BoxFit.cover,
               ),
-              fit: BoxFit.cover,
             ),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 8, // 70% of the screen
-                // child: Container(),
-                child: DisplayBody(),
-              ),
-              Expanded(
-                flex: 2, // 30% of the screen
-                // child: Container(),
-                child: DisplayWaktuSholat(),
-              ),
-            ],
-          ),
-        );
-      },
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 8, // 70% of the screen
+                  child: DisplayBody(),
+                ),
+                Expanded(
+                  flex: 2, // 30% of the screen
+                  child: DisplayWaktuSholat(),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
