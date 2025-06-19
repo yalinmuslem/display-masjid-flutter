@@ -5,3 +5,7 @@ class AzanBerkumandang extends AzanEvent {
 
   AzanBerkumandang(this.namaAzan);
 }
+
+class AzanReset extends AzanEvent {
+  AzanReset();
+}

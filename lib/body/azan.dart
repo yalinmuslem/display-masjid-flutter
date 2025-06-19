@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class AzanPage extends StatelessWidget {
+class AzanPage extends StatefulWidget {
   final String namaAzan;
   const AzanPage({super.key, required this.namaAzan});
+
+  @override
+  _AzanPageState createState() => _AzanPageState();
+}
+
+class _AzanPageState extends State<AzanPage> {
+  @override
+  void dispose() {
+    // Ensure the stream is properly disposed
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +27,7 @@ class AzanPage extends StatelessWidget {
             Icon(Icons.volume_up, size: 100, color: Colors.white),
             const SizedBox(height: 20),
             Text(
-              'Waktu Azan: $namaAzan',
+              'Waktu Azan: ${widget.namaAzan}',
               style: GoogleFonts.bebasNeue(fontSize: 32, color: Colors.white),
             ),
             const SizedBox(height: 20),

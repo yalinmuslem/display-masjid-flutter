@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:display_masjid/bloc/azan_bloc/azan_bloc.dart';
+import 'package:display_masjid/bloc/azan_bloc/azan_event.dart';
 import 'package:display_masjid/bloc/azan_bloc/azan_state.dart';
 import 'package:display_masjid/body/azan.dart';
 import 'package:display_masjid/body/body.dart';
@@ -60,6 +63,24 @@ class _DisplayWaktuSholat extends StatelessWidget {
                   builder: (context) => AzanPage(namaAzan: state.namaAzan),
                 ),
               );
+
+              // Print the elapsed seconds every second
+              Timer? periodicTimer;
+
+              periodicTimer = Timer.periodic(const Duration(seconds: 1), (
+                timer,
+              ) {
+                debugPrint('Elapsed seconds: ${timer.tick}');
+
+                // If the timer has reached 60 seconds, cancel it
+                if (timer.tick >= 60) {
+                  periodicTimer?.cancel(); // Cancel the periodic timer
+                  Navigator.pop(context); // Close AzanPage after 60 seconds
+
+                  context.read<AzanBloc>().add(AzanReset()); // Reset Azan state
+                  debugPrint('Azan has stopped after 60 seconds');
+                }
+              });
             }
           },
         ),

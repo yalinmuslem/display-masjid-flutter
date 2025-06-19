@@ -296,7 +296,9 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
                                             currentTime,
                                           );
 
-                                          if (durasi.inSeconds < 5000 &&
+                                          print('Durasi: ${durasi.inSeconds}');
+
+                                          if (durasi.inSeconds == 0 &&
                                               !isAzanPlaying) {
                                             context.read<AzanBloc>().add(
                                               AzanBerkumandang(waktuAzan),

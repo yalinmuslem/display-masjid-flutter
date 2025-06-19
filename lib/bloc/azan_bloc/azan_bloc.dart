@@ -11,5 +11,9 @@ class AzanBloc extends Bloc<AzanEvent, AzanState> {
       print('Azan is playing');
       emit(AzanState(isAzanPlaying: true, namaAzan: event.namaAzan));
     });
+    on<AzanReset>((event, emit) {
+      print('Azan has stopped');
+      emit(AzanState(isAzanPlaying: false, namaAzan: ''));
+    });
   }
 }
