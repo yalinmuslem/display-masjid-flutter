@@ -33,6 +33,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
   int ayatNumber = 1;
   late int jumlahAyat;
   bool isAzan = false;
+  bool isRandom = false;
 
   @override
   void initState() {
@@ -58,6 +59,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
           jumlahAyat = quran.getVerseCount(randomVerse.surahNumber);
           surahNumber = randomVerse.surahNumber;
           ayatNumber = 1; // Mulai dari ayat pertama
+          isRandom = true;
           debugPrint('Tidak ada playlist Quran untuk hari ini.');
         }
       });
@@ -67,28 +69,33 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
 
     player.playerStateStream.listen((state) {
       if (state.processingState == ProcessingState.completed) {
-        // Jika audio selesai diputar, lakukan sesuatu
-        // Misalnya, kita bisa memutar audio ayat berikutnya
-        if (ayatNumber < jumlahAyat) {
+        if (!isRandom) {
+          if (ayatNumber < jumlahAyat) {
+            setState(() {
+              // Increment ayatNumber to play the next ayat
+              ayatNumber++;
+            });
+            // player.dispose(); // Dispose the previous player instance
+            playAudio(surahNumber, ayatNumber, player);
+          } else {
+            // Jika sudah mencapai akhir surah, reset ke ayat pertama
+            setState(() {
+              ayatNumber = 1;
+              currentSurahIndex++;
+              if (currentSurahIndex >= quranPlaylist.length) {
+                currentSurahIndex = 0; // ulang dari awal playlist
+              }
+              surahHariIni = quranPlaylist[currentSurahIndex];
+              surahNumber = surahHariIni!['nomor_surat'];
+              jumlahAyat = quran.getVerseCount(surahNumber);
+            });
+            // player.dispose(); // Dispose the previous player instance
+            playAudio(surahNumber, ayatNumber, player);
+          }
+        } else {
           setState(() {
-            // Increment ayatNumber to play the next ayat
             ayatNumber++;
           });
-          // player.dispose(); // Dispose the previous player instance
-          playAudio(surahNumber, ayatNumber, player);
-        } else {
-          // Jika sudah mencapai akhir surah, reset ke ayat pertama
-          setState(() {
-            ayatNumber = 1;
-            currentSurahIndex++;
-            if (currentSurahIndex >= quranPlaylist.length) {
-              currentSurahIndex = 0; // ulang dari awal playlist
-            }
-            surahHariIni = quranPlaylist[currentSurahIndex];
-            surahNumber = surahHariIni!['nomor_surat'];
-            jumlahAyat = quran.getVerseCount(surahNumber);
-          });
-          // player.dispose(); // Dispose the previous player instance
           playAudio(surahNumber, ayatNumber, player);
         }
       }
@@ -130,6 +137,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
   @override
   Widget build(BuildContext context) {
     final surah = quran.getSurahName(surahNumber);
+    final bool isAzanPlaying = context.watch<AzanBloc>().state.isAzanPlaying;
 
     return Row(
       children: [
@@ -246,10 +254,6 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
                                   final String jamAzan =
                                       state.waktuSholatTerdekat.waktuSholat;
 
-                                  print(
-                                    'Waktu Azan: $waktuAzan, Jam Azan: $jamAzan',
-                                  );
-
                                   return Column(
                                     children: [
                                       Text(
@@ -258,7 +262,6 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
                                         style: GoogleFonts.bebasNeue(
                                           fontSize: 24,
                                           color: Colors.black,
-                                          height: 0.8,
                                         ),
                                       ),
                                       StreamBuilder<DateTime>(
@@ -293,12 +296,10 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
                                             currentTime,
                                           );
 
-                                          print('Durasi: $durasi');
-                                          print(durasi.inSeconds);
                                           if (durasi.inSeconds < 5000 &&
-                                              !isAzan) {
+                                              !isAzanPlaying) {
                                             context.read<AzanBloc>().add(
-                                              AzanBerkumandang(),
+                                              AzanBerkumandang(waktuAzan),
                                             );
                                           }
 

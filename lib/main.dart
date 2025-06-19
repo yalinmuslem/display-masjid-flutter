@@ -57,7 +57,7 @@ class _DisplayWaktuSholat extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => AzanPage(),
+                  builder: (context) => AzanPage(namaAzan: state.namaAzan),
                 ),
               );
             }

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AzanPage extends StatelessWidget {
-
-  const AzanPage({super.key});
+  final String namaAzan;
+  const AzanPage({super.key, required this.namaAzan});
 
   @override
   Widget build(BuildContext context) {
@@ -16,14 +16,17 @@ class AzanPage extends StatelessWidget {
             Icon(Icons.volume_up, size: 100, color: Colors.white),
             const SizedBox(height: 20),
             Text(
-              'Waktu Azan:',
+              'Waktu Azan: $namaAzan',
               style: GoogleFonts.bebasNeue(fontSize: 32, color: Colors.white),
             ),
             const SizedBox(height: 20),
             Text(
               'Mohon tenang, azan sedang dikumandangkan',
               textAlign: TextAlign.center,
-              style: GoogleFonts.bebasNeue(fontSize: 24, color: Colors.grey[300]),
+              style: GoogleFonts.bebasNeue(
+                fontSize: 24,
+                color: Colors.grey[300],
+              ),
             ),
           ],
         ),
