@@ -40,3 +40,35 @@ String _namaHari(int weekday) {
   };
   return hari[weekday]!;
 }
+
+Future<String> getTerjemahan(int surah, int ayat) async {
+  final terjemahanFile = 'assets/surah/$surah.json';
+
+  try {
+    final data = await rootBundle.loadString(terjemahanFile);
+    final Map<String, dynamic> terjemahanData = json.decode(data);
+
+    final ayatText =
+        terjemahanData['$surah']?['translations']?['id']?['text']?['$ayat'];
+
+    if (ayatText != null) {
+      return ayatText;
+    } else {
+      return 'Terjemahan tidak ditemukan';
+    }
+  } catch (e) {
+    return 'Terjemahan tidak tersedia';
+  }
+}
+
+Future<void> playAudio(int surah, int ayat, dynamic player) async {
+  final audioPath =
+      'quran_audio/$surah/${surah.toString().padLeft(3, '0')}${ayat.toString().padLeft(3, '0')}.mp3';
+  try {
+    print('Memutar audio: $audioPath');
+    await player.setAsset(audioPath);
+    await player.play();
+  } catch (e) {
+    print('Gagal memutar audio: $e');
+  }
+}

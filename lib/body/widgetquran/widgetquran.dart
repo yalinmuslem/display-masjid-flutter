@@ -1,11 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:display_masjid/bloc/azan_bloc/azan_bloc.dart';
 import 'package:display_masjid/bloc/azan_bloc/azan_event.dart';
 import 'package:display_masjid/services/quran_playlist_service.dart';
 import 'package:display_masjid/bloc/waktusholat_bloc/waktusholat_bloc.dart';
-import 'package:display_masjid/bloc/waktusholat_bloc/waktusholat_event.dart';
 import 'package:display_masjid/bloc/waktusholat_bloc/waktusholat_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -77,7 +75,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
             ayatNumber++;
           });
           // player.dispose(); // Dispose the previous player instance
-          _playAudio();
+          playAudio(surahNumber, ayatNumber, player);
         } else {
           // Jika sudah mencapai akhir surah, reset ke ayat pertama
           setState(() {
@@ -91,22 +89,10 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
             jumlahAyat = quran.getVerseCount(surahNumber);
           });
           // player.dispose(); // Dispose the previous player instance
-          _playAudio();
+          playAudio(surahNumber, ayatNumber, player);
         }
       }
     });
-  }
-
-  Future<void> _playAudio() async {
-    final audioPath =
-        'quran_audio/$surahNumber/${surahNumber.toString().padLeft(3, '0')}${ayatNumber.toString().padLeft(3, '0')}.mp3';
-    try {
-      print('Memutar audio: $audioPath');
-      await player.setAsset(audioPath);
-      await player.play();
-    } catch (e) {
-      debugPrint('Gagal memutar audio: $e');
-    }
   }
 
   // list mosque_images from folder assets/mosque_images dynamically
@@ -133,27 +119,6 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
     // print('Loaded mosque images: ${images.length}');
 
     return images;
-  }
-
-  Future<String> _getTerjemahan(int surah, int ayat) async {
-    final terjemahanFile = 'assets/surah/$surah.json';
-
-    try {
-      final data = await rootBundle.loadString(terjemahanFile);
-      final Map<String, dynamic> terjemahanData = json.decode(data);
-
-      final ayatText =
-          terjemahanData['$surah']?['translations']?['id']?['text']?['$ayat'];
-
-      if (ayatText != null) {
-        return ayatText;
-      } else {
-        return 'Terjemahan tidak ditemukan';
-      }
-    } catch (e) {
-      debugPrint('Gagal memuat file terjemahan: $e');
-      return 'Terjemahan tidak tersedia';
-    }
   }
 
   @override
@@ -276,7 +241,6 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
                           childContent:
                               BlocBuilder<WaktusholatBloc, WaktuSholatState>(
                                 builder: (context, state) {
-                                  
                                   final String waktuAzan =
                                       state.waktuSholatTerdekat.waktu;
                                   final String jamAzan =
@@ -450,7 +414,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
                           flex: 3,
                           child: Center(
                             child: FutureBuilder<String>(
-                              future: _getTerjemahan(surahNumber, ayatNumber),
+                              future: getTerjemahan(surahNumber, ayatNumber),
                               builder: (context, snapshot) {
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
@@ -486,7 +450,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
                               setState(() {
                                 // Reset ayatNumber to 1 to start from the beginning
                                 ayatNumber = 1;
-                                _playAudio();
+                                playAudio(surahNumber, ayatNumber, player);
                               });
                             },
                             child: const Text('Mulai dari Awal'),

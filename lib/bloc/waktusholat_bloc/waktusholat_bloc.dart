@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:display_masjid/model/waktusholat.dart';
 import 'package:display_masjid/bloc/waktusholat_bloc/waktusholat_event.dart';
 import 'package:display_masjid/bloc/waktusholat_bloc/waktusholat_state.dart';
