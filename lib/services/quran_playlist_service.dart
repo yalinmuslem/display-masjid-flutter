@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 
 Future<List> getQuranPlaylist() async {
   try {
@@ -16,14 +17,14 @@ Future<List> getQuranPlaylist() async {
     if (data.containsKey(namaHari)) {
       final List<dynamic> daftarSurah = data[namaHari];
 
-      print(daftarSurah);
+      debugPrint(daftarSurah as String?);
 
       return daftarSurah; // Mengembalikan daftar surah
     } else {
-      print('Tidak ada playlist untuk hari $namaHari.');
+      debugPrint('Tidak ada playlist untuk hari $namaHari.');
     }
   } catch (e) {
-    print('Terjadi kesalahan saat membaca file: $e');
+    debugPrint('Terjadi kesalahan saat membaca file: $e');
   }
   return []; // Return an empty list if no playlist is found or an error occurs
 }
@@ -65,10 +66,10 @@ Future<void> playAudio(int surah, int ayat, dynamic player) async {
   final audioPath =
       'quran_audio/$surah/${surah.toString().padLeft(3, '0')}${ayat.toString().padLeft(3, '0')}.mp3';
   try {
-    print('Memutar audio: $audioPath');
+    debugPrint('Memutar audio: $audioPath');
     await player.setAsset(audioPath);
     await player.play();
   } catch (e) {
-    print('Gagal memutar audio: $e');
+    debugPrint('Gagal memutar audio: $e');
   }
 }

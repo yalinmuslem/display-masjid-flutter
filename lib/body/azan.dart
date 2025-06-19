@@ -6,7 +6,7 @@ class AzanPage extends StatefulWidget {
   const AzanPage({super.key, required this.namaAzan});
 
   @override
-  _AzanPageState createState() => _AzanPageState();
+  State<AzanPage> createState() => _AzanPageState();
 }
 
 class _AzanPageState extends State<AzanPage> {

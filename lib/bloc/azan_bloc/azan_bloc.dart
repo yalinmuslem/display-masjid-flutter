@@ -1,5 +1,6 @@
 import 'package:display_masjid/bloc/azan_bloc/azan_event.dart';
 import 'package:display_masjid/bloc/azan_bloc/azan_state.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AzanBloc extends Bloc<AzanEvent, AzanState> {
@@ -8,11 +9,11 @@ class AzanBloc extends Bloc<AzanEvent, AzanState> {
       // Simulate loading azan data
       await Future.delayed(const Duration(seconds: 1));
 
-      print('Azan is playing');
+      debugPrint('Azan is playing');
       emit(AzanState(isAzanPlaying: true, namaAzan: event.namaAzan));
     });
     on<AzanReset>((event, emit) {
-      print('Azan has stopped');
+      debugPrint('Azan has stopped');
       emit(AzanState(isAzanPlaying: false, namaAzan: ''));
     });
   }

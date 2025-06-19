@@ -1,6 +1,7 @@
 import 'package:display_masjid/model/waktusholat.dart';
 import 'package:display_masjid/bloc/waktusholat_bloc/waktusholat_event.dart';
 import 'package:display_masjid/bloc/waktusholat_bloc/waktusholat_state.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class WaktusholatBloc extends Bloc<WaktuSholatEvent, WaktuSholatState> {
@@ -26,7 +27,7 @@ class WaktusholatBloc extends Bloc<WaktuSholatEvent, WaktuSholatState> {
         };
 
         // print (rawData);
-        print('Waktu Sholat Data: $rawData');
+        debugPrint('Waktu Sholat Data: $rawData');
 
         final List<WaktuSholat> data = rawData.entries.map((e) {
           return WaktuSholat(waktu: e.key, waktuSholat: e.value);

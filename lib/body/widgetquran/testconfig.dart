@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/widgets.dart';
+
 Future<List> printPlaylistHariIni() async {
   try {
     final file = File('assets/playlist_quran.json');
@@ -16,10 +18,10 @@ Future<List> printPlaylistHariIni() async {
 
       return daftarSurah; // Mengembalikan daftar surah
     } else {
-      print('Tidak ada playlist untuk hari $namaHari.');
+      debugPrint('Tidak ada playlist untuk hari $namaHari.');
     }
   } catch (e) {
-    print('Terjadi kesalahan saat membaca file: $e');
+    debugPrint('Terjadi kesalahan saat membaca file: $e');
   }
   return []; // Return an empty list if no playlist is found or an error occurs
 }
@@ -40,12 +42,14 @@ String _namaHari(int weekday) {
 void main() async {
   var surah = await printPlaylistHariIni();
   if (surah.isEmpty) {
-    print('Tidak ada playlist Quran untuk hari ini.');
+    debugPrint('Tidak ada playlist Quran untuk hari ini.');
     return;
   }
-  print('📖 Playlist Quran hari ini:');
+  debugPrint('📖 Playlist Quran hari ini:');
   for (var s in surah) {
-    print('   🔊 Surah ${s['nomor_surat']}: ${s['nama']} (${s['durasi']})');
+    debugPrint(
+      '   🔊 Surah ${s['nomor_surat']}: ${s['nama']} (${s['durasi']})',
+    );
   }
-  print('✅ Selesai mencetak playlist hari ini.');
+  debugPrint('✅ Selesai mencetak playlist hari ini.');
 }
