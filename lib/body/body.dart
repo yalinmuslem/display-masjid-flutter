@@ -4,7 +4,6 @@ import 'package:display_masjid/body/widgetquran/widgetquran.dart';
 import 'package:display_masjid/services/mosque_image_services.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:quran/surah_data.dart';
 
 class DisplayBody extends StatefulWidget {
   const DisplayBody({super.key});
@@ -128,7 +127,7 @@ class _DisplayBodyState extends State<DisplayBody> {
                   ],
                 ),
               ),
-              SingleChildScrollView(child: DisplayWidgetQuran()),
+              Expanded(flex: 8, child: DisplayWidgetQuran()),
             ],
           ),
         ),

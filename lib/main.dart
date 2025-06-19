@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:display_masjid/bloc/azan_bloc/azan_bloc.dart';
 import 'package:display_masjid/bloc/azan_bloc/azan_event.dart';
 import 'package:display_masjid/bloc/azan_bloc/azan_state.dart';
+import 'package:display_masjid/bloc/quran_bloc/quran_bloc.dart';
+import 'package:display_masjid/bloc/quran_bloc/quran_state.dart';
 import 'package:display_masjid/body/azan.dart';
 import 'package:display_masjid/body/body.dart';
 import 'package:display_masjid/bloc/waktusholat_bloc/waktusholat_bloc.dart';
@@ -33,6 +35,7 @@ class MainApp extends StatelessWidget {
         providers: [
           BlocProvider(create: (context) => WaktusholatBloc()),
           BlocProvider(create: (context) => AzanBloc()),
+          BlocProvider(create: (context) => QuranBloc()),
         ],
         child: Scaffold(body: _DisplayWaktuSholat()),
       ),
@@ -82,6 +85,11 @@ class _DisplayWaktuSholat extends StatelessWidget {
                 }
               });
             }
+          },
+        ),
+        BlocListener<QuranBloc, QuranState>(
+          listener: (context, state) {
+            // Handle QuranBloc state changes if needed
           },
         ),
       ],
