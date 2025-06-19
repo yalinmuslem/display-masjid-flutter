@@ -1,8 +1,10 @@
 import 'package:carousel_slider_x/carousel_slider_x.dart';
+import 'package:display_masjid/bloc/quran_bloc/quran_bloc.dart';
 import 'package:display_masjid/body/header/header.dart';
 import 'package:display_masjid/body/widgetquran/widgetquran.dart';
 import 'package:display_masjid/services/mosque_image_services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class DisplayBody extends StatefulWidget {
@@ -23,6 +25,12 @@ class _DisplayBodyState extends State<DisplayBody> {
 
   @override
   Widget build(BuildContext context) {
+    final String? surahName;
+
+    surahName = context.select<QuranBloc, String?>(
+      (quranBloc) => quranBloc.state.surahName,
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -113,7 +121,7 @@ class _DisplayBodyState extends State<DisplayBody> {
                         ),
                         child: Center(
                           child: Text(
-                            'Surah Hari Ini:\n',
+                            'Surah Hari Ini:\n${surahName ?? 'Al-Fatiha'}',
                             style: GoogleFonts.getFont(
                               'Amiri Quran',
                               fontSize: 24,

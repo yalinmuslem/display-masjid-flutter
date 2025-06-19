@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:display_masjid/bloc/azan_bloc/azan_bloc.dart';
 import 'package:display_masjid/bloc/azan_bloc/azan_event.dart';
+import 'package:display_masjid/bloc/quran_bloc/quran_bloc.dart';
+import 'package:display_masjid/bloc/quran_bloc/quran_event.dart';
 import 'package:display_masjid/services/quran_playlist_service.dart';
 import 'package:display_masjid/bloc/waktusholat_bloc/waktusholat_bloc.dart';
 import 'package:display_masjid/bloc/waktusholat_bloc/waktusholat_state.dart';
@@ -22,15 +24,16 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
   final randomVerse = quran.RandomVerse();
   final hariIni = DateTime.now().weekday;
   final AudioPlayer player = AudioPlayer();
-  List<dynamic> quranPlaylist = [];
+  List<Map<String, dynamic>> quranPlaylist = [];
   Map<String, dynamic>? surahHariIni;
   List<String> mosqueImages = [];
   int currentSurahIndex = 0;
   int surahNumber = 1;
   int ayatNumber = 1;
-  late int jumlahAyat;
+  late int jumlahAyat = 1;
   bool isAzan = false;
   bool isRandom = false;
+  bool isPlaying = false;
 
   @override
   void initState() {
@@ -108,6 +111,15 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
   Widget build(BuildContext context) {
     final surah = quran.getSurahName(surahNumber);
     final bool isAzanPlaying = context.watch<AzanBloc>().state.isAzanPlaying;
+    final quranBloc = context.read<QuranBloc>();
+    quranBloc.add(
+      QuranFetchEvent(
+        surahNumber: surahNumber,
+        ayahNumber: ayatNumber,
+        ayahCount: jumlahAyat,
+        isPlaying: isPlaying,
+      ),
+    );
 
     return Column(
       children: [
@@ -169,7 +181,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
                                   currentTime,
                                 );
 
-                                debugPrint('Durasi: ${durasi.inSeconds}');
+                                // debugPrint('Durasi: ${durasi.inSeconds}');
 
                                 if (durasi.inSeconds == 0 && !isAzanPlaying) {
                                   context.read<AzanBloc>().add(
@@ -322,6 +334,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
                         setState(() {
                           // Reset ayatNumber to 1 to start from the beginning
                           ayatNumber = 1;
+                          isPlaying = true;
                           playAudio(surahNumber, ayatNumber, player);
                         });
                       },
