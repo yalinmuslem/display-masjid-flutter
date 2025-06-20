@@ -4,6 +4,7 @@ import 'package:display_masjid/bloc/azan_bloc/azan_bloc.dart';
 import 'package:display_masjid/bloc/azan_bloc/azan_event.dart';
 import 'package:display_masjid/bloc/quran_bloc/quran_bloc.dart';
 import 'package:display_masjid/bloc/quran_bloc/quran_event.dart';
+import 'package:display_masjid/bloc/waktusholat_bloc/waktusholat_event.dart';
 import 'package:display_masjid/services/quran_playlist_service.dart';
 import 'package:display_masjid/bloc/waktusholat_bloc/waktusholat_bloc.dart';
 import 'package:display_masjid/bloc/waktusholat_bloc/waktusholat_state.dart';
@@ -183,7 +184,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
 
                                 // debugPrint('Durasi: ${durasi.inSeconds}');
 
-                                if (durasi.inSeconds == 0 && !isAzanPlaying) {
+                                if (durasi.inSeconds > 0 && !isAzanPlaying) {
                                   context.read<AzanBloc>().add(
                                     AzanBerkumandang(waktuAzan),
                                   );
@@ -329,16 +330,32 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
                   ),
                   Expanded(
                     flex: 1,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          // Reset ayatNumber to 1 to start from the beginning
-                          ayatNumber = 1;
-                          isPlaying = true;
-                          playAudio(surahNumber, ayatNumber, player);
-                        });
-                      },
-                      child: const Text('Mulai dari Awal'),
+                    child: Row(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              // Reset ayatNumber to 1 to start from the beginning
+                              ayatNumber = 1;
+                              isPlaying = true;
+                              playAudio(surahNumber, ayatNumber, player);
+                            });
+                          },
+                          child: const Text('Mulai dari Awal'),
+                        ),
+                        const SizedBox(width: 10),
+                        ElevatedButton(
+                          onPressed: () {
+                            context.read<WaktusholatBloc>().add(
+                              LoadWaktuSholatFromApi(),
+                            );
+                          },
+                          child: Text(
+                            'Refresh Waktu Sholat',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

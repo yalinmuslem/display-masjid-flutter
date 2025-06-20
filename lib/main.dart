@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:display_masjid/after_azan.dart';
+import 'package:display_masjid/bloc/after_azan_bloc/after_azan_bloc.dart';
+import 'package:display_masjid/bloc/after_azan_bloc/after_azan_state.dart';
 import 'package:display_masjid/bloc/azan_bloc/azan_bloc.dart';
-import 'package:display_masjid/bloc/azan_bloc/azan_event.dart';
 import 'package:display_masjid/bloc/azan_bloc/azan_state.dart';
 import 'package:display_masjid/bloc/quran_bloc/quran_bloc.dart';
 import 'package:display_masjid/bloc/quran_bloc/quran_state.dart';
@@ -25,9 +27,15 @@ void main() {
   runApp(MainApp());
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
 
+  @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  late bool isAzan = false;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -36,6 +44,7 @@ class MainApp extends StatelessWidget {
           BlocProvider(create: (context) => WaktusholatBloc()),
           BlocProvider(create: (context) => AzanBloc()),
           BlocProvider(create: (context) => QuranBloc()),
+          BlocProvider(create: (context) => AfterAzanBloc()),
         ],
         child: Scaffold(body: _DisplayWaktuSholat()),
       ),
@@ -43,8 +52,15 @@ class MainApp extends StatelessWidget {
   }
 }
 
-class _DisplayWaktuSholat extends StatelessWidget {
+class _DisplayWaktuSholat extends StatefulWidget {
   const _DisplayWaktuSholat();
+
+  @override
+  State<_DisplayWaktuSholat> createState() => _DisplayWaktuSholatState();
+}
+
+class _DisplayWaktuSholatState extends State<_DisplayWaktuSholat> {
+  bool isAzan = false;
 
   @override
   Widget build(BuildContext context) {
@@ -60,30 +76,41 @@ class _DisplayWaktuSholat extends StatelessWidget {
         BlocListener<AzanBloc, AzanState>(
           listener: (context, state) {
             if (state.isAzanPlaying) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AzanPage(namaAzan: state.namaAzan),
-                ),
-              );
-
-              // Print the elapsed seconds every second
-              Timer? periodicTimer;
-
-              periodicTimer = Timer.periodic(const Duration(seconds: 1), (
-                timer,
-              ) {
-                debugPrint('Elapsed seconds: ${timer.tick}');
-
-                // If the timer has reached 60 seconds, cancel it
-                if (timer.tick >= 60) {
-                  periodicTimer?.cancel(); // Cancel the periodic timer
-                  Navigator.pop(context); // Close AzanPage after 60 seconds
-
-                  context.read<AzanBloc>().add(AzanReset()); // Reset Azan state
-                  debugPrint('Azan has stopped after 60 seconds');
-                }
+              setState(() {
+                isAzan = true; // Update the isAzan state
               });
+
+              if (isAzan) {
+                Timer? azanTimer;
+
+                azanTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+                  debugPrint('Elapsed seconds: ${timer.tick}');
+
+                  // If the timer has reached 60 seconds, cancel it
+                  if (timer.tick >= 60) {
+                    isAzan = false; // Reset the isAzan state
+                    timer.cancel(); // Cancel the periodic timer
+                    debugPrint('Azan has stopped after 60 seconds');
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AfterAzanPage()),
+                    ); // Navigate to AfterAzanPage
+                  }
+                });
+
+                // Stop the timer if another page is pushed
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AzanPage(namaAzan: state.namaAzan),
+                  ),
+                ).then((_) {
+                  azanTimer?.cancel();
+                  debugPrint('Timer canceled due to navigation');
+                });
+              }
+              // Print the elapsed seconds every second
             }
           },
         ),
@@ -91,6 +118,9 @@ class _DisplayWaktuSholat extends StatelessWidget {
           listener: (context, state) {
             // Handle QuranBloc state changes if needed
           },
+        ),
+        BlocListener<AfterAzanBloc, AfterAzanState>(
+          listener: (context, state) {},
         ),
       ],
       child: BlocBuilder<WaktusholatBloc, WaktuSholatState>(
