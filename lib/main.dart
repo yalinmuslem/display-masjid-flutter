@@ -74,44 +74,14 @@ class _DisplayWaktuSholatState extends State<_DisplayWaktuSholat> {
           },
         ),
         BlocListener<AzanBloc, AzanState>(
+          listenWhen: (previous, current) => current.isAzanPlaying,
           listener: (context, state) {
-            if (state.isAzanPlaying) {
-              setState(() {
-                isAzan = true; // Update the isAzan state
-              });
-
-              if (isAzan) {
-                Timer? azanTimer;
-
-                azanTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-                  debugPrint('Elapsed seconds: ${timer.tick}');
-
-                  // If the timer has reached 60 seconds, cancel it
-                  if (timer.tick >= 60) {
-                    isAzan = false; // Reset the isAzan state
-                    timer.cancel(); // Cancel the periodic timer
-                    debugPrint('Azan has stopped after 60 seconds');
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => AfterAzanPage()),
-                    ); // Navigate to AfterAzanPage
-                  }
-                });
-
-                // Stop the timer if another page is pushed
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AzanPage(namaAzan: state.namaAzan),
-                  ),
-                ).then((_) {
-                  azanTimer?.cancel();
-                  debugPrint('Timer canceled due to navigation');
-                });
-              }
-              // Print the elapsed seconds every second
-            }
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AzanPage(namaAzan: state.namaAzan),
+              ),
+            );
           },
         ),
         BlocListener<QuranBloc, QuranState>(

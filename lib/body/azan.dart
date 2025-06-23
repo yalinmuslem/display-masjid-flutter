@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -10,8 +12,21 @@ class AzanPage extends StatefulWidget {
 }
 
 class _AzanPageState extends State<AzanPage> {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    // Start a timer to automatically navigate back after 60 seconds
+    _timer = Timer(const Duration(seconds: 60), () {
+      Navigator.pop(context);
+    });
+  }
+
   @override
   void dispose() {
+    // Cancel the timer when the widget is disposed
+    _timer?.cancel();
     // Ensure the stream is properly disposed
     super.dispose();
   }
