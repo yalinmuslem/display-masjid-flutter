@@ -5,15 +5,29 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class AfterAzanPage extends StatefulWidget {
+class AfterAzanPage extends StatelessWidget {
   const AfterAzanPage({super.key});
 
   @override
-  State createState() => _AfterAzanPageState();
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AfterAzanBloc>(create: (context) => AfterAzanBloc()),
+      ],
+      child: Scaffold(backgroundColor: Colors.black, body: _AfterAzanPage()),
+    );
+  }
 }
 
-class _AfterAzanPageState extends State<AfterAzanPage> {
-  int _remainingTime = 300; // 5 minutes in seconds
+class _AfterAzanPage extends StatefulWidget {
+  const _AfterAzanPage();
+
+  @override
+  State<_AfterAzanPage> createState() => _AfterAzanPageState();
+}
+
+class _AfterAzanPageState extends State<_AfterAzanPage> {
+  int _remainingTime = 60; // 5 minutes in seconds
   late Timer _timer;
 
   @override

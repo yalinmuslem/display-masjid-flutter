@@ -1,13 +1,12 @@
-import 'dart:async';
-
 import 'package:display_masjid/after_azan.dart';
 import 'package:display_masjid/bloc/after_azan_bloc/after_azan_bloc.dart';
+import 'package:display_masjid/bloc/after_azan_bloc/after_azan_event.dart';
 import 'package:display_masjid/bloc/after_azan_bloc/after_azan_state.dart';
 import 'package:display_masjid/bloc/azan_bloc/azan_bloc.dart';
 import 'package:display_masjid/bloc/azan_bloc/azan_state.dart';
 import 'package:display_masjid/bloc/quran_bloc/quran_bloc.dart';
 import 'package:display_masjid/bloc/quran_bloc/quran_state.dart';
-import 'package:display_masjid/body/azan.dart';
+import 'package:display_masjid/azan.dart';
 import 'package:display_masjid/body/body.dart';
 import 'package:display_masjid/bloc/waktusholat_bloc/waktusholat_bloc.dart';
 import 'package:display_masjid/bloc/waktusholat_bloc/waktusholat_event.dart';
@@ -61,6 +60,7 @@ class _DisplayWaktuSholat extends StatefulWidget {
 
 class _DisplayWaktuSholatState extends State<_DisplayWaktuSholat> {
   bool isAzan = false;
+  bool isDoneAfterAzan = false;
 
   @override
   Widget build(BuildContext context) {
@@ -74,14 +74,24 @@ class _DisplayWaktuSholatState extends State<_DisplayWaktuSholat> {
           },
         ),
         BlocListener<AzanBloc, AzanState>(
-          listenWhen: (previous, current) => current.isAzanPlaying,
           listener: (context, state) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AzanPage(namaAzan: state.namaAzan),
-              ),
-            );
+            isAzan = state.isAzanPlaying;
+            if (state.isAzanPlaying) {
+              // Navigate to the AzanPage when azan starts playing
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AzanPage(namaAzan: state.namaAzan),
+                ),
+              );
+            }
+            if (state.isAzanDone) {
+              // Handle azan done state if needed
+              debugPrint('Azan has finished playing');
+              context.read<AfterAzanBloc>().add(
+                AfterAzanStarted(isAfterAzan: true),
+              );
+            }
           },
         ),
         BlocListener<QuranBloc, QuranState>(
@@ -90,7 +100,19 @@ class _DisplayWaktuSholatState extends State<_DisplayWaktuSholat> {
           },
         ),
         BlocListener<AfterAzanBloc, AfterAzanState>(
-          listener: (context, state) {},
+          listener: (context, state) {
+            isDoneAfterAzan = state.isDone;
+            // Navigate back to the main screen after azan
+            if (isDoneAfterAzan && !state.isAfterAzan) {
+              debugPrint('After Azan has finished');
+              Navigator.popUntil(context, (route) => route.isFirst);
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AfterAzanPage()),
+              );
+            }
+          },
         ),
       ],
       child: BlocBuilder<WaktusholatBloc, WaktuSholatState>(

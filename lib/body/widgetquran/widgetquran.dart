@@ -112,6 +112,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
   Widget build(BuildContext context) {
     final surah = quran.getSurahName(surahNumber);
     final bool isAzanPlaying = context.watch<AzanBloc>().state.isAzanPlaying;
+    final bool isAzanDone = context.watch<AzanBloc>().state.isAzanDone;
     final quranBloc = context.read<QuranBloc>();
     quranBloc.add(
       QuranFetchEvent(
@@ -184,7 +185,9 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
 
                                 // debugPrint('Durasi: ${durasi.inSeconds}');
 
-                                if (durasi.inSeconds > 0 && !isAzanPlaying) {
+                                if (durasi.inSeconds > 0 &&
+                                    !isAzanPlaying &&
+                                    !isAzanDone) {
                                   context.read<AzanBloc>().add(
                                     AzanBerkumandang(waktuAzan),
                                   );

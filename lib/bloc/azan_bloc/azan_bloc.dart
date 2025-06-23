@@ -8,13 +8,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class AzanBloc extends Bloc<AzanEvent, AzanState> {
   Timer? timer;
 
-  AzanBloc() : super(AzanState(isAzanPlaying: false, namaAzan: '')) {
+  AzanBloc()
+    : super(AzanState(isAzanPlaying: false, isAzanDone: false, namaAzan: '')) {
     on<AzanBerkumandang>((event, emit) async {
       // Simulate loading azan data
       await Future.delayed(const Duration(seconds: 1));
 
       debugPrint('Azan is playing');
-      emit(AzanState(isAzanPlaying: true, namaAzan: event.namaAzan));
+      emit(
+        AzanState(
+          isAzanPlaying: true,
+          isAzanDone: false,
+          namaAzan: event.namaAzan,
+        ),
+      );
       // Start a timer to stop the azan after 60 seconds
       timer?.cancel(); // Cancel any existing timer
       timer = Timer(const Duration(seconds: 60), () {
@@ -23,8 +30,8 @@ class AzanBloc extends Bloc<AzanEvent, AzanState> {
       });
     });
     on<AzanReset>((event, emit) {
-      debugPrint('Azan has stopped');
-      emit(AzanState(isAzanPlaying: false, namaAzan: ''));
+      // debugPrint('Azan has stopped');
+      emit(AzanState(isAzanPlaying: false, isAzanDone: true, namaAzan: ''));
     });
   }
   @override
