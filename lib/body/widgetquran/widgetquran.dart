@@ -185,7 +185,7 @@ class _DisplayWidgetQuranState extends State<DisplayWidgetQuran> {
 
                                 // debugPrint('Durasi: ${durasi.inSeconds}');
 
-                                if (durasi.inSeconds > 0 &&
+                                if (durasi.inSeconds == 0 &&
                                     !isAzanPlaying &&
                                     !isAzanDone) {
                                   context.read<AzanBloc>().add(
